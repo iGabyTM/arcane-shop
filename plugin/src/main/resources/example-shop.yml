@@ -1,0 +1,10 @@
+title: '<blue>Example Shop!'
+
+items:
+  item1:
+    slot: 0
+    item:
+      material: STONE
+    amount: 5
+    buyPrice: 10  # price for 1: buyPrice / amount
+    sellPrice: 10 # price for 1: sellPrice / amount

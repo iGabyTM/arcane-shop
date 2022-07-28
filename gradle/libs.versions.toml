@@ -1,0 +1,25 @@
+[versions]
+adventure = "4.11.0"
+adventure-platform = "4.1.1"
+
+jetbrains-annotations = "23.0.0"
+
+triumph-cmd = "2.0.0-SNAPSHOT"
+triumph-gui = "3.1.2"
+
+[libraries]
+adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+adventure-bukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
+adventure-mini = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+
+triumph-cmd = { module = "dev.triumphteam:triumph-cmd-bukkit", version.ref = "triumph-cmd" }
+triumph-gui = { module = "dev.triumphteam:triumph-gui", version.ref = "triumph-gui" }
+
+[bundles]
+adventure = ["adventure-api", "adventure-bukkit", "adventure-mini"]
+triumph = ["triumph-cmd", "triumph-gui"]
+
+#[plugins]
+#shadow = { id = "com.github.johnrengelman.shadow", version = "7.0.0" }
