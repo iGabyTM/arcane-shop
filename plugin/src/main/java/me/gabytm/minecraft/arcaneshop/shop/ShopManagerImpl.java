@@ -36,6 +36,20 @@ public class ShopManagerImpl implements ShopManager {
                                 1,
                                 1.0,
                                 0.5
+                        ),
+                        new ShopItemImpl(
+                                new ItemStack(Material.BRICKS),
+                                2,
+                                2,
+                                5,
+                                2
+                        ),
+                        new ShopItemImpl(
+                                new ItemStack(Material.OBSIDIAN),
+                                3,
+                                3,
+                                5,
+                                2
                         )
                 ),
                 null

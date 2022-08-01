@@ -29,13 +29,13 @@ public class MainMenu {
             final Shop shop = entry.getValue();
 
             gui.setItem(shop.getSlot(), new GuiItem(shop.getDisplayItem(), event -> {
-                if (event.getWhoClicked().hasPermission("arcaneshop.shop." + entry.getKey())) {
-                    event.getWhoClicked().sendMessage("Opening shop " + entry.getKey());
+                if (player.hasPermission("arcaneshop.shop." + entry.getKey())) {
+                    player.sendMessage("Opening shop " + entry.getKey());
+                    new ShopMenu().open(player, shop, 1);
                 } else {
-                    event.getWhoClicked().sendMessage("You can not access shop " + entry.getKey());
+                    player.sendMessage("You can not access shop " + entry.getKey());
+                    player.closeInventory();
                 }
-
-                event.getWhoClicked().closeInventory();
             }));
         }
 

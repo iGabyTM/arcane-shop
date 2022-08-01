@@ -6,7 +6,6 @@ import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -15,7 +14,8 @@ public class ShopImpl implements Shop {
     private final ItemStack displayItem;
     private final Component title;
     private final int slot;
-    private final List<ShopItem> items;
+    private final List<@NotNull ShopItem> items;
+    private final int pages;
     private final EconomyProvider economyProvider;
 
     public ShopImpl(
@@ -28,6 +28,10 @@ public class ShopImpl implements Shop {
         this.slot = slot;
         this.items = items;
         this.economyProvider = economyProvider;
+        this.pages = (int) items.stream()
+                .map(ShopItem::getPage)
+                .distinct()
+                .count();
     }
 
     @Override
@@ -48,6 +52,11 @@ public class ShopImpl implements Shop {
     @Override
     public @NotNull List<@NotNull ShopItem> getItems() {
         return items;
+    }
+
+    @Override
+    public int getPages() {
+        return pages;
     }
 
     @Override

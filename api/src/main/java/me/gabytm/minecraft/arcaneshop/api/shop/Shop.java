@@ -17,6 +17,8 @@ public interface Shop {
 
     @NotNull List<@NotNull ShopItem> getItems();
 
+    int getPages();
+
     @NotNull EconomyProvider getEconomyProvider();
 
 }
