@@ -23,6 +23,6 @@ public interface Shop {
 
     @NotNull EconomyProvider getEconomyProvider();
 
-    @NotNull Map<@NotNull ClickType, @NotNull ShopAction> getClickActions();
+    @NotNull Map<@NotNull ShopAction, @NotNull ClickType> getClickActions();
 
 }

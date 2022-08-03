@@ -45,18 +45,12 @@ public class ShopMenu {
                         }
                     })
                     .asGuiItem(event -> {
-                        final ShopAction shopAction = shop.getClickActions().get(event.getClick());
-
-                        if (shopAction == null) {
-                            return;
-                        }
-
-                        if (shopAction == ShopAction.SELL && item.getSellPrice() != 0.0d) {
+                        if (item.getSellPrice() != 0.0d && shop.getClickActions().get(ShopAction.SELL) == event.getClick()) {
                             player.sendMessage(ChatColor.GREEN + "Selling " + item.item().getType() + " for " + item.getSellPrice());
                             return;
                         }
 
-                        if (shopAction == ShopAction.BUY && item.getBuyPrice() != 0.0d) {
+                        if (item.getBuyPrice() != 0.0d && shop.getClickActions().get(ShopAction.BUY) == event.getClick()) {
                             if (shop.getEconomyProvider().hasEnough(player, item.getBuyPrice())) {
                                 player.sendMessage(ChatColor.GREEN + "Buying " + item.item().getType() + " for " + item.getBuyPrice());
                             } else {

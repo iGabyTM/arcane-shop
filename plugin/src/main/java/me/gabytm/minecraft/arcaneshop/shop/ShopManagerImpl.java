@@ -25,10 +25,10 @@ public class ShopManagerImpl implements ShopManager {
     public ShopManagerImpl(@NotNull final EconomyManager economyManager) {
         this.economyManager = economyManager;
 
-        final Map<ClickType, ShopAction> defaultShopActions = new HashMap<>();
-        defaultShopActions.put(ClickType.LEFT, ShopAction.SELL);
-        defaultShopActions.put(ClickType.SHIFT_LEFT, ShopAction.SELL_ALL);
-        defaultShopActions.put(ClickType.RIGHT, ShopAction.BUY);
+        final Map<ShopAction, ClickType> defaultShopActions = new HashMap<>();
+        defaultShopActions.put(ShopAction.SELL, ClickType.LEFT);
+        defaultShopActions.put(ShopAction.SELL_ALL, ClickType.SHIFT_LEFT);
+        defaultShopActions.put(ShopAction.BUY, ClickType.RIGHT);
 
         final Shop blocks = new ShopImpl(
                 new ItemStack(Material.BRICKS),

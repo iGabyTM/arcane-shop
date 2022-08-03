@@ -1,8 +1,8 @@
 package me.gabytm.minecraft.arcaneshop.shop;
 
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyProvider;
-import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.ClickType;
@@ -20,12 +20,12 @@ public class ShopImpl implements Shop {
     private final List<@NotNull ShopItem> items;
     private final int pages;
     private final EconomyProvider economyProvider;
-    private final Map<@NotNull ClickType, @NotNull ShopAction> clickActions;
+    private final Map<@NotNull ShopAction, @NotNull ClickType> clickActions;
 
     public ShopImpl(
             @NotNull final ItemStack displayItem, @NotNull final Component title,
             final int slot, @NotNull final List<@NotNull ShopItem> items,
-            @NotNull final EconomyProvider economyProvider, @NotNull final Map<@NotNull ClickType, @NotNull ShopAction> clickActions
+            @NotNull final EconomyProvider economyProvider, @NotNull final Map<@NotNull ShopAction, @NotNull ClickType> clickActions
     ) {
         this.displayItem = displayItem;
         this.title = title;
@@ -67,7 +67,7 @@ public class ShopImpl implements Shop {
     }
 
     @Override
-    public @NotNull Map<@NotNull ClickType, @NotNull ShopAction> getClickActions() {
+    public @NotNull Map<@NotNull ShopAction, @NotNull ClickType> getClickActions() {
         return clickActions;
     }
 
