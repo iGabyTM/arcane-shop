@@ -1,0 +1,5 @@
+economy: vault
+shop-actions:
+  SELL: LEFT
+  SELL_ALL: SHIFT_LEFT
+  BUY: RIGHT
