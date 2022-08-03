@@ -30,7 +30,7 @@ tasks {
 
         mapOf(
             "org.spongepowered" to "spongepowered",
-            "com.google" to "google",
+            "com.google.gson" to "google.gson",
             "net.kyori" to "kyori",
             "dev.triumphteam" to "triumphteam",
             "org.yaml" to "yaml"
