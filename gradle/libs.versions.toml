@@ -2,6 +2,8 @@
 adventure = "4.11.0"
 adventure-platform = "4.1.1"
 
+configurate = "4.1.2"
+
 jetbrains-annotations = "23.0.0"
 
 triumph-cmd = "2.0.0-SNAPSHOT"
@@ -12,7 +14,10 @@ vaultapi = "1.7"
 [libraries]
 adventure-api = { module = "net.kyori:adventure-api", version.ref = "adventure" }
 adventure-bukkit = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
+adventure-configurate = { module = "net.kyori:adventure-serializer-configurate4", version.ref = "adventure-platform" }
 adventure-mini = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+
+configurate = { module = "org.spongepowered:configurate-yaml", version.ref = "configurate" }
 
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 
@@ -23,6 +28,7 @@ vaultapi = { module = "com.github.MilkBowl:VaultAPI", version.ref = "vaultapi" }
 
 [bundles]
 adventure = ["adventure-api", "adventure-bukkit", "adventure-mini"]
+configurate = ["adventure-configurate", "configurate"]
 triumph = ["triumph-cmd", "triumph-gui"]
 
 #[plugins]

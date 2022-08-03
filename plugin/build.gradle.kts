@@ -10,6 +10,7 @@ repositories {
 dependencies {
     implementation(project(":api"))
     implementation(libs.bundles.adventure)
+    implementation(libs.bundles.configurate)
     implementation(libs.bundles.triumph)
 
     compileOnly(libs.jetbrains.annotations)
@@ -23,11 +24,16 @@ tasks {
         eachFile { expand("version" to project.version) }
     }
 
+    @Suppress("SpellCheckingInspection")
     shadowJar {
         archiveFileName.set("ArcaneShop [${project.version}].jar")
 
-        relocate("net.kyori", "me.gabytm.minecraft.arcaneshop.libs.kyori")
-        relocate("dev.triumphteam", "me.gabytm.minecraft.arcaneshop.libs.triumph")
+        mapOf(
+            "org.spongepowered.configurate" to "configurate",
+            "net.kyori" to "kyori",
+            "dev.triumphteam" to "triumph",
+            "org.yaml" to "yaml"
+        ).forEach { (key, value) -> relocate(key, "me.gabytm.minecraft.arcaneshop.libs.$value") }
     }
 
     task<Copy>("buildJar") {
