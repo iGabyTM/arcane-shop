@@ -12,9 +12,9 @@ import java.util.Map;
 
 public class MainMenu {
 
-    public final ShopManager shopManager;
+    private final ShopManager shopManager;
 
-    public MainMenu(ShopManager shopManager) {
+    public MainMenu(@NotNull final ShopManager shopManager) {
         this.shopManager = shopManager;
     }
 

@@ -4,6 +4,7 @@ plugins {
 
 repositories {
     maven("https://repo.triumphteam.dev/snapshots")
+    maven("https://jitpack.io")
 }
 
 dependencies {
@@ -12,6 +13,9 @@ dependencies {
     implementation(libs.bundles.triumph)
 
     compileOnly(libs.jetbrains.annotations)
+
+    // Economy
+    compileOnly(libs.vaultapi)
 }
 
 tasks {

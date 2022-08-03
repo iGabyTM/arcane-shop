@@ -4,12 +4,13 @@ import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -44,10 +45,23 @@ public class ShopMenu {
                         }
                     })
                     .asGuiItem(event -> {
-                        if (event.getClick() == ClickType.LEFT && item.getSellPrice() != 0.0d) {
-                            player.sendMessage("Selling " + item.item().getType() + " for " + item.getSellPrice());
-                        } else if (event.getClick() == ClickType.RIGHT && item.getBuyPrice() != 0.0d) {
-                            player.sendMessage("Buying " + item.item().getType() + " for " + item.getSellPrice());
+                        final ShopAction shopAction = shop.getClickActions().get(event.getClick());
+
+                        if (shopAction == null) {
+                            return;
+                        }
+
+                        if (shopAction == ShopAction.SELL && item.getSellPrice() != 0.0d) {
+                            player.sendMessage(ChatColor.GREEN + "Selling " + item.item().getType() + " for " + item.getSellPrice());
+                            return;
+                        }
+
+                        if (shopAction == ShopAction.BUY && item.getBuyPrice() != 0.0d) {
+                            if (shop.getEconomyProvider().hasEnough(player, item.getBuyPrice())) {
+                                player.sendMessage(ChatColor.GREEN + "Buying " + item.item().getType() + " for " + item.getBuyPrice());
+                            } else {
+                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.item().getType());
+                            }
                         }
                     });
 

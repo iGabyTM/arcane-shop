@@ -1,10 +1,13 @@
 package me.gabytm.minecraft.arcaneshop.shop;
 
 import com.google.common.collect.ImmutableMap;
+import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +20,16 @@ public class ShopManagerImpl implements ShopManager {
 
     private final Map<String, Shop> shops = new HashMap<>();
 
-    public ShopManagerImpl() {
+    private final EconomyManager economyManager;
+
+    public ShopManagerImpl(@NotNull final EconomyManager economyManager) {
+        this.economyManager = economyManager;
+
+        final Map<ClickType, ShopAction> defaultShopActions = new HashMap<>();
+        defaultShopActions.put(ClickType.LEFT, ShopAction.SELL);
+        defaultShopActions.put(ClickType.SHIFT_LEFT, ShopAction.SELL_ALL);
+        defaultShopActions.put(ClickType.RIGHT, ShopAction.BUY);
+
         final Shop blocks = new ShopImpl(
                 new ItemStack(Material.BRICKS),
                 Component.text("Blocks"),
@@ -52,7 +64,8 @@ public class ShopManagerImpl implements ShopManager {
                                 2
                         )
                 ),
-                null
+                economyManager.getProvider("vault"),
+                defaultShopActions
         );
 
         final Shop ores = new ShopImpl(
@@ -75,7 +88,8 @@ public class ShopManagerImpl implements ShopManager {
                                 25
                         )
                 ),
-                null
+                economyManager.getProvider("vault"),
+                defaultShopActions
         );
 
         shops.put("blocks", blocks);

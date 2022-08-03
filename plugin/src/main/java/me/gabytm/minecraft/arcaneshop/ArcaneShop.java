@@ -3,7 +3,9 @@ package me.gabytm.minecraft.arcaneshop;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPI;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPIImpl;
+import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
 import me.gabytm.minecraft.arcaneshop.commands.ShopCommand;
+import me.gabytm.minecraft.arcaneshop.economy.EconomyManagerImpl;
 import me.gabytm.minecraft.arcaneshop.menu.MainMenu;
 import me.gabytm.minecraft.arcaneshop.shop.ShopManagerImpl;
 import org.bukkit.command.CommandSender;
@@ -21,7 +23,9 @@ public class ArcaneShop extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        api = new ArcaneShopAPIImpl(new ShopManagerImpl());
+        final EconomyManager economyManager = new EconomyManagerImpl();
+
+        api = new ArcaneShopAPIImpl(economyManager, new ShopManagerImpl(economyManager));
         registerCommands();
 
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);

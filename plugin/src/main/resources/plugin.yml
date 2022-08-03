@@ -2,3 +2,6 @@ name: ArcaneShop
 main: me.gabytm.minecraft.arcaneshop.ArcaneShop
 version: ${version}
 api-version: '1.13'
+
+softdepend:
+  - Vault

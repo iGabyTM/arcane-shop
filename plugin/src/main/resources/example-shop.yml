@@ -8,3 +8,11 @@ items:
     amount: 5
     buyPrice: 10  # price for 1: buyPrice / amount
     sellPrice: 10 # price for 1: sellPrice / amount
+
+  spawner:
+    display:
+      material: MOB_SPAWNER
+      name: '<red>Pig <white>Spawner'
+    commands:
+      - 'ss give %player_name% pig 1'
+    buyPrice: 5000
