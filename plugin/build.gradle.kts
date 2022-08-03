@@ -29,9 +29,10 @@ tasks {
         archiveFileName.set("ArcaneShop [${project.version}].jar")
 
         mapOf(
-            "org.spongepowered.configurate" to "configurate",
+            "org.spongepowered" to "spongepowered",
+            "com.google" to "google",
             "net.kyori" to "kyori",
-            "dev.triumphteam" to "triumph",
+            "dev.triumphteam" to "triumphteam",
             "org.yaml" to "yaml"
         ).forEach { (key, value) -> relocate(key, "me.gabytm.minecraft.arcaneshop.libs.$value") }
     }
