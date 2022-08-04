@@ -51,10 +51,10 @@ public class ShopMenu {
                         }
 
                         if (item.getBuyPrice() != 0.0d && shop.getClickActions().get(ShopAction.BUY) == event.getClick()) {
-                            if (shop.getEconomyProvider().hasEnough(player, item.getBuyPrice())) {
-                                player.sendMessage(ChatColor.GREEN + "Buying " + item.item().getType() + " for " + item.getBuyPrice());
-                            } else {
+                            if (!shop.getEconomyProvider().hasEnough(player, item.getBuyPrice())) {
                                 player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.item().getType());
+                            } else {
+                                new AmountSelectorMenu().open(item, player, shop, page);
                             }
                         }
                     });
@@ -62,7 +62,7 @@ public class ShopMenu {
             gui.setItem(item.getSlot(), guiItem);
         }
 
-        if (page - 1 >= 1) {
+        if (page != 1) {
             final GuiItem arrow = ItemBuilder.from(Material.ARROW)
                     .name(Component.text("Previous page", NamedTextColor.RED))
                     .amount(page - 1)
