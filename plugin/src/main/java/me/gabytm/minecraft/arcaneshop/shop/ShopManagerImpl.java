@@ -29,6 +29,7 @@ public class ShopManagerImpl implements ShopManager {
         defaultShopActions.put(ShopAction.SELL, ClickType.LEFT);
         defaultShopActions.put(ShopAction.SELL_ALL, ClickType.SHIFT_LEFT);
         defaultShopActions.put(ShopAction.BUY, ClickType.RIGHT);
+        defaultShopActions.put(ShopAction.BUY_MULTIPLE, ClickType.SHIFT_RIGHT);
 
         final Shop blocks = new ShopImpl(
                 new ItemStack(Material.BRICKS),
