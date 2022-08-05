@@ -41,7 +41,7 @@ public class ShopMenu {
                 .create();
 
         for (final ShopItem item : items) {
-            final GuiItem guiItem = ItemBuilder.from(item.item().clone())
+            final GuiItem guiItem = ItemBuilder.from(item.displayItem().item().clone())
                     .lore(lore -> {
                         if (item.getSellPrice() != 0.0d) {
                             lore.add(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN));
@@ -52,8 +52,8 @@ public class ShopMenu {
                         }
                     })
                     .asGuiItem(event -> {
-                        if (item.getSellPrice() != 0.0d && shop.getClickActions().get(ShopAction.SELL) == event.getClick()) {
-                            player.sendMessage(ChatColor.GREEN + "Selling " + item.item().getType() + " for " + item.getSellPrice());
+                        if (item.getSellPrice() != 0.0d && shop.settings().getClickActions().get(ShopAction.SELL) == event.getClick()) {
+                            player.sendMessage(ChatColor.GREEN + "Selling " + item.itemStack().getType() + " for " + item.getSellPrice());
                             return;
                         }
 

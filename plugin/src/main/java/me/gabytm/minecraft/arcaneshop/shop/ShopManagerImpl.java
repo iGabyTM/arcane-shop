@@ -6,6 +6,7 @@ import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
+import me.gabytm.minecraft.arcaneshop.item.DisplayItemImpl;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +44,7 @@ public class ShopManagerImpl implements ShopManager {
                 0,
                 Arrays.asList(
                         new ShopItemImpl(
+                                new DisplayItemImpl(new ItemStack(Material.STONE), "", Collections.emptyList()),
                                 new ItemStack(Material.STONE),
                                 0,
                                 1,
@@ -49,6 +52,7 @@ public class ShopManagerImpl implements ShopManager {
                                 0.5
                         ),
                         new ShopItemImpl(
+                                new DisplayItemImpl(new ItemStack(Material.DIRT), "", Collections.emptyList()),
                                 new ItemStack(Material.DIRT),
                                 1,
                                 1,
@@ -56,6 +60,7 @@ public class ShopManagerImpl implements ShopManager {
                                 0.5
                         ),
                         new ShopItemImpl(
+                                new DisplayItemImpl(new ItemStack(Material.BRICKS), "", Collections.emptyList()),
                                 new ItemStack(Material.BRICKS),
                                 2,
                                 2,
@@ -63,6 +68,7 @@ public class ShopManagerImpl implements ShopManager {
                                 2
                         ),
                         new ShopItemImpl(
+                                new DisplayItemImpl(new ItemStack(Material.OBSIDIAN), "", Collections.emptyList()),
                                 new ItemStack(Material.OBSIDIAN),
                                 3,
                                 3,
@@ -79,6 +85,7 @@ public class ShopManagerImpl implements ShopManager {
                 1,
                 Arrays.asList(
                         new ShopItemImpl(
+                                new DisplayItemImpl(new ItemStack(Material.DIAMOND), "", Collections.emptyList()),
                                 new ItemStack(Material.DIAMOND),
                                 0,
                                 1,
@@ -86,6 +93,7 @@ public class ShopManagerImpl implements ShopManager {
                                 25
                         ),
                         new ShopItemImpl(
+                                new DisplayItemImpl(new ItemStack(Material.EMERALD), "", Collections.emptyList()),
                                 new ItemStack(Material.EMERALD),
                                 1,
                                 1,

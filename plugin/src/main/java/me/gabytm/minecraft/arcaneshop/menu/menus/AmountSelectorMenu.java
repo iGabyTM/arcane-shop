@@ -33,7 +33,7 @@ public class AmountSelectorMenu {
                 .disableAllInteractions()
                 .create();
 
-        final AtomicInteger amount = new AtomicInteger(item.item().getAmount());
+        final AtomicInteger amount = new AtomicInteger(item.itemStack().getAmount());
         final GuiAction<InventoryClickEvent> buyAction = (event) -> {
             final double cost = amount.get() * item.getBuyPrice();
 
@@ -41,12 +41,12 @@ public class AmountSelectorMenu {
                 player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount.get(), item.itemStack().getType(), cost));
                 menuManager.openShop(player, shop, page);
             } else {
-                player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.item().getType(), cost));
+                player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.itemStack().getType(), cost));
             }
         };
         final Consumer<Integer> updateAmount = (amt) -> gui.updateItem(
                 3, 5,
-                ItemBuilder.from(item.item().clone())
+                ItemBuilder.from(item.displayItem().item().clone())
                         .lore(lore -> {
                             lore.add(Component.empty());
                             lore.add(Component.text("Buy " + amt + " for " + String.format("%.2f", item.getBuyPrice() * amt), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
@@ -55,7 +55,7 @@ public class AmountSelectorMenu {
                         .asGuiItem(buyAction)
         );
 
-        updateAmount.accept(item.item().getAmount());
+        updateAmount.accept(item.itemStack().getAmount());
 
         //<editor-fold desc="Subtract">
         gui.setItem(
@@ -98,11 +98,11 @@ public class AmountSelectorMenu {
         gui.setItem(
                 2, 8,
                 ItemBuilder.from(Material.GREEN_STAINED_GLASS)
-                        .name(Component.text("Set to " + item.item().getType().getMaxStackSize(), NamedTextColor.DARK_GREEN).decoration(TextDecoration.ITALIC, false))
-                        .amount(item.item().getType().getMaxStackSize())
+                        .name(Component.text("Set to " + item.itemStack().getType().getMaxStackSize(), NamedTextColor.DARK_GREEN).decoration(TextDecoration.ITALIC, false))
+                        .amount(item.itemStack().getType().getMaxStackSize())
                         .asGuiItem(event -> {
-                            if (amount.get() != item.item().getType().getMaxStackSize()) {
-                                amount.set(item.item().getType().getMaxStackSize());
+                            if (amount.get() != item.itemStack().getType().getMaxStackSize()) {
+                                amount.set(item.itemStack().getType().getMaxStackSize());
                                 updateAmount.accept(amount.get());
                             }
                         })
@@ -113,8 +113,8 @@ public class AmountSelectorMenu {
                         .name(Component.text("+10", NamedTextColor.DARK_GREEN).decoration(TextDecoration.ITALIC, false))
                         .amount(10)
                         .asGuiItem(event -> {
-                            if (amount.get() != item.item().getType().getMaxStackSize()) {
-                                amount.set(Math.min(item.item().getType().getMaxStackSize(), amount.get() + 10));
+                            if (amount.get() != item.itemStack().getType().getMaxStackSize()) {
+                                amount.set(Math.min(item.itemStack().getType().getMaxStackSize(), amount.get() + 10));
                                 updateAmount.accept(amount.get());
                             }
                         })
@@ -124,7 +124,7 @@ public class AmountSelectorMenu {
                 ItemBuilder.from(Material.LIME_STAINED_GLASS_PANE)
                         .name(Component.text("+1", NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false))
                         .asGuiItem(event -> {
-                            if (amount.get() != item.item().getType().getMaxStackSize()) {
+                            if (amount.get() != item.itemStack().getType().getMaxStackSize()) {
                                 updateAmount.accept(amount.incrementAndGet());
                             }
                         })
