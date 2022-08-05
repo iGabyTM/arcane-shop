@@ -7,7 +7,7 @@ import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
 import me.gabytm.minecraft.arcaneshop.commands.ShopCommand;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.economy.EconomyManagerImpl;
-import me.gabytm.minecraft.arcaneshop.menu.MainMenu;
+import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import me.gabytm.minecraft.arcaneshop.shop.ShopManagerImpl;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.ServicePriority;
@@ -17,10 +17,11 @@ public class ArcaneShop extends JavaPlugin {
 
     private ArcaneShopAPI api;
     private ConfigManager configManager;
+    private MenuManager menuManager;
 
     private void registerCommands() {
         final BukkitCommandManager<CommandSender> manager = BukkitCommandManager.create(this);
-        manager.registerCommand(new ShopCommand(new MainMenu(api.getShopManager())));
+        manager.registerCommand(new ShopCommand(menuManager));
     }
 
     @Override
@@ -29,6 +30,7 @@ public class ArcaneShop extends JavaPlugin {
         final EconomyManager economyManager = new EconomyManagerImpl();
 
         api = new ArcaneShopAPIImpl(economyManager, new ShopManagerImpl(economyManager));
+        this.menuManager = new MenuManager(api.getShopManager());
         registerCommands();
 
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);

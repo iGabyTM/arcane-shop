@@ -1,4 +1,4 @@
-package me.gabytm.minecraft.arcaneshop.menu;
+package me.gabytm.minecraft.arcaneshop.menu.menus;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
@@ -6,6 +6,7 @@ import dev.triumphteam.gui.guis.GuiItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.ChatColor;
@@ -17,6 +18,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ShopMenu {
+
+    private final MenuManager menuManager;
+
+    public ShopMenu(@NotNull final MenuManager menuManager) {
+        this.menuManager = menuManager;
+    }
 
     public void open(@NotNull final Player player, @NotNull final Shop shop, final int page) {
         final List<ShopItem> items = shop.getItems().stream()
@@ -54,7 +61,7 @@ public class ShopMenu {
                             if (!shop.getEconomyProvider().hasEnough(player, item.getBuyPrice())) {
                                 player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.item().getType());
                             } else {
-                                new AmountSelectorMenu().open(item, player, shop, page);
+                                menuManager.openAmountSelector(item, player, shop, page);
                             }
                         }
                     });
