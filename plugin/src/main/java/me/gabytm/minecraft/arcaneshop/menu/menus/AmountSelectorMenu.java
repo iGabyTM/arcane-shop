@@ -37,8 +37,8 @@ public class AmountSelectorMenu {
         final GuiAction<InventoryClickEvent> buyAction = (event) -> {
             final double cost = amount.get() * item.getBuyPrice();
 
-            if (shop.settings().getEconomyProvider().hasEnough(player, cost)) {
-                player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount.get(), item.item().getType(), cost));
+            if (shop.settings().getEconomyProvider().has(player, cost)) {
+                player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount.get(), item.itemStack().getType(), cost));
                 menuManager.openShop(player, shop, page);
             } else {
                 player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.item().getType(), cost));

@@ -4,10 +4,12 @@ import org.bukkit.entity.Player;
 
 public interface EconomyProvider {
 
-    boolean hasEnough(final Player player, final double amount);
+    boolean has(final Player player, final double amount);
 
     boolean subtract(final Player player, final double amount);
 
     boolean add(final Player player, final double amount);
+
+    double get(final Player player);
 
 }
