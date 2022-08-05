@@ -5,6 +5,7 @@ import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
@@ -25,11 +26,15 @@ public class ShopManagerImpl implements ShopManager {
     public ShopManagerImpl(@NotNull final EconomyManager economyManager) {
         this.economyManager = economyManager;
 
-        final Map<ShopAction, ClickType> defaultShopActions = new HashMap<>();
-        defaultShopActions.put(ShopAction.SELL, ClickType.LEFT);
-        defaultShopActions.put(ShopAction.SELL_ALL, ClickType.SHIFT_LEFT);
-        defaultShopActions.put(ShopAction.BUY, ClickType.RIGHT);
-        defaultShopActions.put(ShopAction.BUY_MULTIPLE, ClickType.SHIFT_RIGHT);
+        final ShopSettings settings = new ShopSettingsImpl(
+                economyManager.getProvider("vault"),
+                ImmutableMap.<ShopAction, ClickType>builder()
+                        .put(ShopAction.SELL, ClickType.LEFT)
+                        .put(ShopAction.SELL_ALL, ClickType.SHIFT_LEFT)
+                        .put(ShopAction.BUY, ClickType.RIGHT)
+                        .put(ShopAction.BUY_MULTIPLE, ClickType.SHIFT_RIGHT)
+                        .build()
+        );
 
         final Shop blocks = new ShopImpl(
                 new ItemStack(Material.BRICKS),
@@ -65,8 +70,7 @@ public class ShopManagerImpl implements ShopManager {
                                 2
                         )
                 ),
-                economyManager.getProvider("vault"),
-                defaultShopActions
+                settings
         );
 
         final Shop ores = new ShopImpl(
@@ -89,8 +93,7 @@ public class ShopManagerImpl implements ShopManager {
                                 25
                         )
                 ),
-                economyManager.getProvider("vault"),
-                defaultShopActions
+                settings
         );
 
         shops.put("blocks", blocks);

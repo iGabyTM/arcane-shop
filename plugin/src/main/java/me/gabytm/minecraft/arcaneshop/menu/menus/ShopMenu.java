@@ -57,8 +57,8 @@ public class ShopMenu {
                             return;
                         }
 
-                        if (item.getBuyPrice() != 0.0d && shop.getClickActions().get(ShopAction.BUY) == event.getClick()) {
-                            if (!shop.getEconomyProvider().hasEnough(player, item.getBuyPrice())) {
+                        if (item.getBuyPrice() != 0.0d && shop.settings().getClickActions().get(ShopAction.BUY) == event.getClick()) {
+                            if (!shop.settings().getEconomyProvider().hasEnough(player, item.getBuyPrice())) {
                                 player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.item().getType());
                             } else {
                                 menuManager.openAmountSelector(item, player, shop, page);

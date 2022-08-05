@@ -1,13 +1,10 @@
 package me.gabytm.minecraft.arcaneshop.api.shop;
 
-import me.gabytm.minecraft.arcaneshop.api.economy.EconomyProvider;
 import net.kyori.adventure.text.Component;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 public interface Shop {
 
@@ -21,8 +18,6 @@ public interface Shop {
 
     int getPages();
 
-    @NotNull EconomyProvider getEconomyProvider();
-
-    @NotNull Map<@NotNull ShopAction, @NotNull ClickType> getClickActions();
+    @NotNull ShopSettings settings();
 
 }
