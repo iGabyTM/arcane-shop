@@ -11,7 +11,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.CommentedConfigurationNode;
+import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Arrays;
@@ -25,7 +25,7 @@ public class ItemCreator {
 
     private static final Material PLAYER_HEAD = ServerVersion.IS_ITEM_LEGACY ? Material.valueOf("SKULL_ITEM") : Material.PLAYER_HEAD;
 
-    private @NotNull String getNodePath(@NotNull final CommentedConfigurationNode node) {
+    private @NotNull String getNodePath(@NotNull final ConfigurationNode node) {
         return Arrays.stream(node.path().array())
                 .map(Object::toString)
                 .collect(Collectors.joining("."));
@@ -35,7 +35,7 @@ public class ItemCreator {
         return ServerVersion.IS_ITEM_LEGACY ? (material == PLAYER_HEAD && damage == 3) : (material == PLAYER_HEAD);
     }
 
-    private @NotNull ItemStack setMeta(@NotNull final CommentedConfigurationNode node, @NotNull final BaseItemBuilder<?> builder) throws SerializationException {
+    private @NotNull ItemStack setMeta(@NotNull final ConfigurationNode node, @NotNull final BaseItemBuilder<?> builder) throws SerializationException {
         final ItemFlag[] flags = node.node("flags").getList(String.class, Collections.emptyList()).stream()
                 .map(it -> Enums.getOrNull(ItemFlag.class, it))
                 .filter(Objects::nonNull)
@@ -62,8 +62,8 @@ public class ItemCreator {
         return builder.build();
     }
 
-    public ItemStack createFromConfig(@NotNull final CommentedConfigurationNode node) throws SerializationException {
-        final CommentedConfigurationNode materialNode = node.node("material");
+    public ItemStack createFromConfig(@NotNull final ConfigurationNode node) throws SerializationException {
+        final ConfigurationNode materialNode = node.node("material");
 
         if (materialNode.empty()) {
             return ItemBuilder.from(Material.BARRIER)
@@ -72,7 +72,7 @@ public class ItemCreator {
                     .build();
         }
 
-        final String materialName = materialNode.getString();
+        final String materialName = materialNode.getString("");
         final Material material = Material.matchMaterial(materialName);
 
         if (material == null) {

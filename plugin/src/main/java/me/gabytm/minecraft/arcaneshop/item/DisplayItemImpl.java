@@ -33,4 +33,13 @@ public class DisplayItemImpl implements DisplayItem {
         return lore;
     }
 
+    @Override
+    public String toString() {
+        return "DisplayItemImpl{" +
+                "item=" + item +
+                ", name='" + name + '\'' +
+                ", lore=" + lore +
+                '}';
+    }
+
 }
