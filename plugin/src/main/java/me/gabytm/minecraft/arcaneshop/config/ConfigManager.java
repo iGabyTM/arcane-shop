@@ -1,8 +1,21 @@
 package me.gabytm.minecraft.arcaneshop.config;
 
+import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
+import me.gabytm.minecraft.arcaneshop.api.economy.EconomyProvider;
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
+import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
+import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
+import me.gabytm.minecraft.arcaneshop.config.configs.ItemsConfig;
+import me.gabytm.minecraft.arcaneshop.config.configs.MainConfig;
 import me.gabytm.minecraft.arcaneshop.config.serialize.ComponentSerializer;
-import me.gabytm.minecraft.arcaneshop.config.serialize.DisplayItemSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.EconomyProviderSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.item.DisplayItemSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.item.ShopDecorationItemSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopItemSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopSettingsSerializer;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
@@ -18,16 +31,20 @@ import java.nio.file.Paths;
 
 public class ConfigManager {
 
-    private Config config;
+    private MainConfig mainConfig;
+    private ItemsConfig itemsConfig;
+
     private final Path dataFolder;
     private final ItemCreator itemCreator;
+    private final EconomyManager economyManager;
 
-    public ConfigManager(@NotNull final Path dataFolder, @NotNull final ItemCreator itemCreator) {
+    public ConfigManager(
+            @NotNull final Path dataFolder, @NotNull final ItemCreator itemCreator,
+            @NotNull final EconomyManager economyManager
+    ) {
         this.dataFolder = dataFolder;
         this.itemCreator = itemCreator;
-
-        config = load(Config.class, Paths.get("config.yml"));
-        //load(ItemsConfig.class, Paths.get("menus", "items.yml"));
+        this.economyManager = economyManager;
     }
 
     private @Nullable <T> T load(@NotNull final Class<T> clazz, final Path pathToFile) {
@@ -56,14 +73,21 @@ public class ConfigManager {
         return config;
     }
 
-    private @NotNull YamlConfigurationLoader createLoader(@NotNull final Path path) {
+    public @NotNull YamlConfigurationLoader createLoader(@NotNull final Path path) {
         return YamlConfigurationLoader.builder()
                 .path(path)
                 .defaultOptions(options ->
                         options.shouldCopyDefaults(true)
                                 .serializers(serializers ->
-                                        serializers.register(Component.class, ComponentSerializer.INSTANCE)
+                                        serializers
+                                                .register(Component.class, ComponentSerializer.INSTANCE)
                                                 .register(DisplayItem.class, new DisplayItemSerializer(itemCreator))
+                                                .register(EconomyProvider.class, new EconomyProviderSerializer(economyManager))
+                                                // Shop
+                                                .register(ShopDecorationItem.class, new ShopDecorationItemSerializer(itemsConfig))
+                                                //.register(ShopSettings.class, new ShopSettingsSerializer(economyManager, mainConfig))
+                                                .register(ShopItem.class, new ShopItemSerializer(itemCreator))
+                                                .register(Shop.class, new ShopSerializer(itemCreator, mainConfig, economyManager))
                                 )
                 )
                 .indent(2)
@@ -71,8 +95,20 @@ public class ConfigManager {
                 .build();
     }
 
-    public Config getConfig() {
-        return config;
+    public MainConfig getMainConfig() {
+        return mainConfig;
+    }
+
+    public void loadMainConfig() {
+        mainConfig = load(MainConfig.class, Paths.get("config.yml"));
+    }
+
+    public ItemsConfig getItemsConfig() {
+        return itemsConfig;
+    }
+
+    public void loadItemsConfig() {
+        itemsConfig = load(ItemsConfig.class, Paths.get("menus", "items.yml"));
     }
 
 }

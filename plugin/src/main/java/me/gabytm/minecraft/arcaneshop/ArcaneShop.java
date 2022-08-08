@@ -14,6 +14,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public class ArcaneShop extends JavaPlugin {
 
     private ArcaneShopAPI api;
@@ -30,14 +32,23 @@ public class ArcaneShop extends JavaPlugin {
     public void onEnable() {
         getDataFolder().mkdirs();
 
-        this.configManager = new ConfigManager(getDataFolder().toPath().toAbsolutePath(), itemCreator);
         final EconomyManager economyManager = new EconomyManagerImpl();
+        this.configManager = new ConfigManager(getDataFolder().toPath().toAbsolutePath(), itemCreator, economyManager);
 
-        api = new ArcaneShopAPIImpl(economyManager, new ShopManagerImpl(economyManager));
+        api = new ArcaneShopAPIImpl(economyManager, new ShopManagerImpl(new File(getDataFolder(), "shops")));
+        load();
         this.menuManager = new MenuManager(api.getShopManager());
         registerCommands();
 
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);
+    }
+
+    public void load() {
+        configManager.loadMainConfig();
+        configManager.loadItemsConfig();
+
+        api.getEconomyManager().setDefaultProvider(api.getEconomyManager().getProvider(configManager.getMainConfig().getDefaultEconomyProvider()));
+        ((ShopManagerImpl) api.getShopManager()).loadShops(configManager);
     }
 
 }

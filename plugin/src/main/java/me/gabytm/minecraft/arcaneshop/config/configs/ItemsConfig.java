@@ -16,7 +16,7 @@ import java.util.Map;
 public class ItemsConfig {
 
     private Map<@NotNull String, @NotNull DisplayItem> items = ImmutableMap.of(
-            "balance", new DisplayItemImpl(new ItemStack(Material.PAPER), "", Collections.emptyList())
+            "balance", new DisplayItemImpl(new ItemStack(Material.PAPER), "<green>Balance: $<balance>", Collections.emptyList())
     );
 
     public @NotNull Map<@NotNull String, @NotNull DisplayItem> getItems() {

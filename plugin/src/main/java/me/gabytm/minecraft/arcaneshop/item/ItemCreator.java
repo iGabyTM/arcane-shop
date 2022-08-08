@@ -132,7 +132,7 @@ public class ItemCreator {
             return new DisplayItemImpl(item, "", Collections.emptyList());
         }
 
-        final int amount = node.node("amount").getInt();
+        final int amount = node.node("amount").getInt(1);
         final short damage = node.node("damage").get(Short.class, (short) 0);
         //noinspection deprecation
         final ItemBuilder builder = ItemBuilder.from(new ItemStack(material, amount, damage));

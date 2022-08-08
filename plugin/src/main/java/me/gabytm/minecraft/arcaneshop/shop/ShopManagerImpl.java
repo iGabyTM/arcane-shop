@@ -1,21 +1,16 @@
 package me.gabytm.minecraft.arcaneshop.shop;
 
 import com.google.common.collect.ImmutableMap;
-import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
-import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
-import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
-import me.gabytm.minecraft.arcaneshop.item.DisplayItemImpl;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Material;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.ItemStack;
+import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
+import me.gabytm.minecraft.arcaneshop.util.Logging;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,12 +18,20 @@ public class ShopManagerImpl implements ShopManager {
 
     private final Map<String, Shop> shops = new HashMap<>();
 
-    private final EconomyManager economyManager;
+    private final File shopsFolder;
 
-    public ShopManagerImpl(@NotNull final EconomyManager economyManager) {
+    public ShopManagerImpl(File shopsFolderPath) {
+        this.shopsFolder = shopsFolderPath;
+    }
+
+    /*private final EconomyManager economyManager;
+    private final ConfigManager configManager;
+
+    public ShopManagerImpl(@NotNull final EconomyManager economyManager, @NotNull final ConfigManager configManager) {
         this.economyManager = economyManager;
+        this.configManager = configManager;*/
 
-        final ShopSettings settings = new ShopSettingsImpl(
+        /*final ShopSettings settings = new ShopSettingsImpl(
                 economyManager.getProvider("vault"),
                 ImmutableMap.<ShopAction, ClickType>builder()
                         .put(ShopAction.SELL, ClickType.LEFT)
@@ -105,8 +108,8 @@ public class ShopManagerImpl implements ShopManager {
         );
 
         shops.put("blocks", blocks);
-        shops.put("ores", ores);
-    }
+        shops.put("ores", ores);*/
+    //}
 
     @Override
     public @Nullable Shop getShop(@NotNull final String name) {
@@ -116,6 +119,29 @@ public class ShopManagerImpl implements ShopManager {
     @Override
     public @NotNull Map<String, Shop> getShops() {
         return ImmutableMap.copyOf(shops);
+    }
+
+    public void loadShops(@NotNull final ConfigManager configManager) {
+        try {
+            shops.clear();
+            shopsFolder.mkdirs();
+            final File[] files = shopsFolder.listFiles(it -> it.getName().endsWith(".yml"));
+
+            if (files == null) {
+                Logging.warning("No shops found on {0}", shopsFolder.getAbsolutePath());
+                return;
+            }
+
+            for (final File shopFile : files) {
+                final YamlConfigurationLoader loader = configManager.createLoader(shopFile.toPath());
+                final Shop shop =  loader.load().get(Shop.class);
+                shops.put(shopFile.getName().replace(".yml", ""), shop);
+            }
+
+            Logging.warning("Loaded {0} shops: {1}", shops.size(), String.join(", ", shops.keySet()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

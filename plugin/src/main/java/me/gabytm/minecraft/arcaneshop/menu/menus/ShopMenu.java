@@ -30,7 +30,7 @@ public class ShopMenu {
                 .filter(it -> it.getPage() == page)
                 .collect(Collectors.toList());
 
-        if (items.isEmpty()) {
+        if (page != 1 && items.isEmpty()) {
             return;
         }
 
@@ -39,6 +39,10 @@ public class ShopMenu {
                 .rows(6)
                 .disableAllInteractions()
                 .create();
+
+        shop.getDecorations().stream()
+                .filter(it -> it.getPage() == -1 || it.getPage() == page)
+                .forEach(item -> gui.setItem(item.getSlot(), new GuiItem(item.getDisplayItem().item())));
 
         for (final ShopItem item : items) {
             final GuiItem guiItem = ItemBuilder.from(item.displayItem().item().clone())
@@ -52,13 +56,13 @@ public class ShopMenu {
                         }
                     })
                     .asGuiItem(event -> {
-                        if (item.getSellPrice() != 0.0d && shop.settings().getClickActions().get(ShopAction.SELL) == event.getClick()) {
+                        if (item.getSellPrice() != 0.0d && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
                             player.sendMessage(ChatColor.GREEN + "Selling " + item.itemStack().getType() + " for " + item.getSellPrice());
                             return;
                         }
 
-                        if (item.getBuyPrice() != 0.0d && shop.settings().getClickActions().get(ShopAction.BUY) == event.getClick()) {
-                            if (!shop.settings().getEconomyProvider().has(player, item.getBuyPrice())) {
+                        if (item.getBuyPrice() != 0.0d && shop.getShopActions().get(ShopAction.BUY) == event.getClick()) {
+                            if (!shop.getEconomyProvider().has(player, item.getBuyPrice())) {
                                 player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.itemStack().getType());
                             } else {
                                 menuManager.openAmountSelector(item, player, shop, page);

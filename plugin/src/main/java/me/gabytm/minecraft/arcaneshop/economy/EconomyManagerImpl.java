@@ -14,6 +14,7 @@ import java.util.Map;
 public class EconomyManagerImpl implements EconomyManager {
 
     private final Map<String, EconomyProvider> economyProviders = new HashMap<>();
+    private EconomyProvider defaultProvider;
 
     public EconomyManagerImpl() {
         register("vault", new VaultEconomyProvider(Bukkit.getServicesManager().getRegistration(Economy.class).getProvider()));
@@ -27,6 +28,20 @@ public class EconomyManagerImpl implements EconomyManager {
     @Override
     public @Nullable EconomyProvider getProvider(@NotNull String name) {
         return this.economyProviders.get(name.toLowerCase());
+    }
+
+    @Override
+    public @NotNull EconomyProvider getDefaultProvider() {
+        return defaultProvider;
+    }
+
+    @Override
+    public void setDefaultProvider(@Nullable EconomyProvider provider) {
+        if (provider == null) {
+            throw new IllegalArgumentException("The default economy provider can not be null");
+        }
+
+        this.defaultProvider = provider;
     }
 
 }

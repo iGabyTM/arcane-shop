@@ -1,4 +1,4 @@
-package me.gabytm.minecraft.arcaneshop.config.serialize;
+package me.gabytm.minecraft.arcaneshop.config.serialize.item;
 
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
 import me.gabytm.minecraft.arcaneshop.item.DisplayItemImpl;

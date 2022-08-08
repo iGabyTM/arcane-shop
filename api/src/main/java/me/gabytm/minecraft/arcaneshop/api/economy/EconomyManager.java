@@ -9,4 +9,8 @@ public interface EconomyManager {
 
     @Nullable EconomyProvider getProvider(@NotNull final String name);
 
+    @NotNull EconomyProvider getDefaultProvider();
+
+    void setDefaultProvider(@Nullable final EconomyProvider provider);
+
 }

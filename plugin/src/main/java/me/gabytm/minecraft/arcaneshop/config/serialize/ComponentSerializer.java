@@ -22,7 +22,7 @@ public class ComponentSerializer implements TypeSerializer<Component> {
 
     @Override
     public void serialize(Type type, @Nullable Component obj, ConfigurationNode node) throws SerializationException {
-        node.set(Component.class, (obj == null) ? "" : MiniMessage.miniMessage().serialize(obj));
+        //node.set(Component.class, (obj == null) ? "" : MiniMessage.miniMessage().serialize(obj));
     }
 
     @Override
