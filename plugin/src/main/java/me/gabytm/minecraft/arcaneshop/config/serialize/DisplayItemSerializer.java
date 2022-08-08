@@ -93,10 +93,7 @@ public class DisplayItemSerializer implements TypeSerializer<DisplayItem> {
 
     @Override
     public DisplayItem deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        final ItemStack item = itemCreator.createFromConfig(node);
-        final String name = node.node("name").getString("");
-        final List<String> lore = node.node("lore").getList(String.class, Collections.emptyList());
-        return new DisplayItemImpl(item, name, lore);
+        return itemCreator.createFromConfig(node);
     }
 
     @Override

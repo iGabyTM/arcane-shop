@@ -2,6 +2,7 @@ package me.gabytm.minecraft.arcaneshop.item;
 
 import dev.triumphteam.gui.builder.item.BaseItemBuilder;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
+import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
 import me.gabytm.minecraft.arcaneshop.util.ServerVersion;
 import net.kyori.adventure.text.Component;
@@ -17,6 +18,7 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,7 +37,7 @@ public class ItemCreator {
         return ServerVersion.IS_ITEM_LEGACY ? (material == PLAYER_HEAD && damage == 3) : (material == PLAYER_HEAD);
     }
 
-    private @NotNull ItemStack setMeta(@NotNull final ConfigurationNode node, @NotNull final BaseItemBuilder<?> builder) throws SerializationException {
+    private @NotNull DisplayItem setMeta(@NotNull final ConfigurationNode node, @NotNull final BaseItemBuilder<?> builder) throws SerializationException {
         final ItemFlag[] flags = node.node("flags").getList(String.class, Collections.emptyList()).stream()
                 .map(it -> Enums.getOrNull(ItemFlag.class, it))
                 .filter(Objects::nonNull)
@@ -59,27 +61,31 @@ public class ItemCreator {
             builder.glow(node.node("glow").getBoolean());
         }
 
-        return builder.build();
+        final String name = node.node("name").getString("");
+        final List<String> lore = node.node("lore").getList(String.class, Collections.emptyList());
+        return new DisplayItemImpl(builder.build(), name, lore);
     }
 
-    public ItemStack createFromConfig(@NotNull final ConfigurationNode node) throws SerializationException {
+    public @NotNull DisplayItem createFromConfig(@NotNull final ConfigurationNode node) throws SerializationException {
         final ConfigurationNode materialNode = node.node("material");
 
         if (materialNode.empty()) {
-            return ItemBuilder.from(Material.BARRIER)
+            final ItemStack item = ItemBuilder.from(Material.BARRIER)
                     .name(Component.text("Missing material @ " + getNodePath(node), NamedTextColor.RED))
                     .glow()
                     .build();
+            return new DisplayItemImpl(item, "", Collections.emptyList());
         }
 
         final String materialName = materialNode.getString("");
         final Material material = Material.matchMaterial(materialName);
 
         if (material == null) {
-            return ItemBuilder.from(Material.BARRIER)
+            final ItemStack item = ItemBuilder.from(Material.BARRIER)
                     .name(Component.text(String.format("Invalid material '%s' (%s)", materialName, getNodePath(materialNode)), NamedTextColor.RED))
                     .glow()
                     .build();
+            return new DisplayItemImpl(item, "", Collections.emptyList());
         }
 
         final int amount = node.node("amount").getInt();
