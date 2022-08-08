@@ -1,18 +1,41 @@
 title: '<blue>Example Shop!'
 
-items:
-  item1:
-    slot: 0
-    item:
-      material: STONE
-    amount: 5
-    buyPrice: 10  # price for 1: buyPrice / amount
-    sellPrice: 10 # price for 1: sellPrice / amount
+settings:
+  actions:
+    SELL: LEFT
+    SELL_ALL: LEFT_SHIFT
 
-  spawner:
-    display:
-      material: MOB_SPAWNER
-      name: '<red>Pig <white>Spawner'
+displayItems:
+  balance:
+    item: balance # id from items.yml
+    slot: 45 # will be placed on all pages on slot 45
+
+items:
+  full-example:
+    # The item that is displayed in the GUI, used for commands or when we want to display a different item than the one
+    # that's bought, a good example would be spawners, they all look the same, so we can use a display a custom head
+    # The fallback value is 'item'
+    display: # name, material, amount, etc.
+    # The item that players buy or sell
+    item: # name, material, etc.
+
+    # The commands 'sold', used for items that are only accessible trough commands
     commands:
-      - 'ss give %player_name% pig 1'
-    buyPrice: 5000
+      # List of commands
+      list: [String]
+      # If this is true and the players buys n items, only one command will be executed instead of n.
+      # <amount> can be used in commands to access the amount of items bought
+      # example: ss give %player_name% pig <amount>
+      executeOnce: boolean
+
+    # Position in GUI
+    slot: int
+    # Page
+    page: int # default: 1
+
+    # Starting amount of items, can be modified using the 'Amount selector' menu
+    amount: int
+    # Price for one item is calculated by dividing buyPrice by amount
+    buyPrice: int
+    # Same as for buyPrice
+    sellPrice: int
