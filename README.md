@@ -1,0 +1,2 @@
+# A shop plugin xD
+[![wakatime](https://wakatime.com/badge/user/b19499d9-51f2-45ec-a72b-08dd46e1fc4b/project/961492ae-2b85-49ef-a15e-0a070fe42422.svg?style=for-the-badge)](https://wakatime.com/badge/user/b19499d9-51f2-45ec-a72b-08dd46e1fc4b/project/961492ae-2b85-49ef-a15e-0a070fe42422)
