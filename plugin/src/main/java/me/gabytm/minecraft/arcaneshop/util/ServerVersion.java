@@ -45,7 +45,12 @@ public final class ServerVersion {
     /**
      * Checks if the version is lower than 1.13 due to the item changes
      */
-    public static final boolean IS_ITEM_LEGACY = CURRENT_VERSION < 1_13_0;
+    public static final boolean IS_LEGACY = CURRENT_VERSION < 1_13_0;
+
+    /**
+     * @see org.bukkit.Keyed
+     */
+    public static final boolean HAS_KEYS = CURRENT_VERSION >= 1_13_0;
 
     /**
      * Check if the server has access to the Paper API

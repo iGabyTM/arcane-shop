@@ -1,23 +1,27 @@
 package me.gabytm.minecraft.arcaneshop.item;
 
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
 import dev.triumphteam.gui.builder.item.BaseItemBuilder;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
+import me.gabytm.minecraft.arcaneshop.util.Logging;
 import me.gabytm.minecraft.arcaneshop.util.ServerVersion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.serialize.SerializationException;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,7 +29,7 @@ import java.util.stream.Collectors;
 
 public class ItemCreator {
 
-    private static final Material PLAYER_HEAD = ServerVersion.IS_ITEM_LEGACY ? Material.valueOf("SKULL_ITEM") : Material.PLAYER_HEAD;
+    private static final Material PLAYER_HEAD = ServerVersion.IS_LEGACY ? Material.valueOf("SKULL_ITEM") : Material.PLAYER_HEAD;
 
     private @NotNull String getNodePath(@NotNull final ConfigurationNode node) {
         return Arrays.stream(node.path().array())
@@ -34,7 +38,42 @@ public class ItemCreator {
     }
 
     private boolean isPlayerHead(@NotNull final Material material, final short damage) {
-        return ServerVersion.IS_ITEM_LEGACY ? (material == PLAYER_HEAD && damage == 3) : (material == PLAYER_HEAD);
+        return ServerVersion.IS_LEGACY ? (material == PLAYER_HEAD && damage == 3) : (material == PLAYER_HEAD);
+    }
+
+    @SuppressWarnings({"UnstableApiUsage", "deprecation"})
+    private @Nullable Map.Entry<@NotNull Enchantment, @NotNull Integer> parseEnchantmentAndLevel(@NotNull final String[] parts) {
+        if (parts.length > 2) {
+            return null;
+        }
+
+        Enchantment enchantment;
+
+        if (ServerVersion.HAS_KEYS) {
+            final String[] key = parts[0].split(":", 2);
+
+            if (key.length == 2) {
+                enchantment = Enchantment.getByKey(new NamespacedKey(key[0], key[1]));
+            } else {
+                // The server has NamespacedKeys but this isn't one
+                enchantment = Enchantment.getByName(parts[0]);
+            }
+        } else {
+            enchantment = Enchantment.getByName(parts[0]);
+        }
+
+        if (enchantment == null) {
+            Logging.warning("{0} is not a valid enchantment", parts[0]);
+            return null;
+        }
+
+        final Integer level = Ints.tryParse(parts[1]);
+
+        if (level == null) {
+            Logging.warning("{0} is not a valid level ({1};{0})", parts[1], parts[0]);
+        }
+
+        return (level == null) ? null : Maps.immutableEntry(enchantment, level);
     }
 
     private @NotNull DisplayItem setMeta(@NotNull final ConfigurationNode node, @NotNull final BaseItemBuilder<?> builder) throws SerializationException {
@@ -43,8 +82,13 @@ public class ItemCreator {
                 .filter(Objects::nonNull)
                 .toArray(ItemFlag[]::new);
 
-        //TODO get enchantments from config
-        final Map<Enchantment, Integer> enchantments = new HashMap<>();
+        final Map<@NotNull Enchantment, @NotNull Integer> enchantments =
+                node.node("enchantments").getList(String.class, Collections.emptyList()).stream()
+                        .map(it -> it.split(";")) // Enchantments are defined as Enchantment;Level
+                        .map(this::parseEnchantmentAndLevel)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
         final int customModelData = node.node("customModelData").getInt();
 
         builder.name(node.node("name").get(Component.class, Component.empty()))
@@ -62,7 +106,7 @@ public class ItemCreator {
         }
 
         final String name = node.node("name").getString("");
-        final List<String> lore = node.node("lore").getList(String.class, Collections.emptyList());
+        final List<@NotNull String> lore = node.node("lore").getList(String.class, Collections.emptyList());
         return new DisplayItemImpl(builder.build(), name, lore);
     }
 
