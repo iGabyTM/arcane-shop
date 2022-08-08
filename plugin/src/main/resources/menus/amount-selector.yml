@@ -1,0 +1,38 @@
+buttons:
+  minus-1:
+    action: SUBTRACT
+    value: 1
+    material: ORANGE_STAINED_GLASS_PANE
+    slot: 10
+    name: '<gold>-1'
+  minus-10:
+    action: SUBTRACT
+    value: 10
+    material: ORANGE_STAINED_GLASS_PANE
+    slot: 19
+    name: '<gold>-10'
+  set-to-1:
+    action: SET
+    value: 1
+    material: RED_STAINED_GLASS
+    slot: 28
+    name: '<red>Set to 1'
+
+  set-to-max:
+    action: SET
+    value: -1
+    material: GREEN_STAINED_GLASS
+    slot: 16
+    name: '<dark_green>Set to <max_amount>'
+  add-10:
+    action: ADD
+    value: 10
+    material: GREEN_STAINED_GLASS_PANE
+    slot: 25
+    name: '<dark_green>+10'
+  add-1:
+    action: ADD
+    value: 1
+    material: LIME_STAINED_GLASS_PANE
+    slot: 34
+    name: '<green>+1'
