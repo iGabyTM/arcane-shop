@@ -18,7 +18,7 @@ public class Tuple<A, B, C> extends Pair<A, B> {
         this.third = third;
     }
 
-    public C third() {
+    public @Nullable C third() {
         return third;
     }
 

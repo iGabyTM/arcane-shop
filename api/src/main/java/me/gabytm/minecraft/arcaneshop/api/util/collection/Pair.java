@@ -17,11 +17,11 @@ public class Pair<A, B> {
         this.second = second;
     }
 
-    public A first() {
+    public @Nullable A first() {
         return first;
     }
 
-    public B second() {
+    public @Nullable B second() {
         return second;
     }
 
