@@ -19,9 +19,9 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShopSettingsSerializer implements TypeSerializer<ShopSettings> {
+public class ShopSettingsSerializer /*implements TypeSerializer<ShopSettings>*/ {
 
-    private final EconomyManager economyManager;
+    /*private final EconomyManager economyManager;
     private final MainConfig mainConfig;
 
     public ShopSettingsSerializer(@NotNull final EconomyManager economyManager, @NotNull final MainConfig configManager) {
@@ -76,6 +76,6 @@ public class ShopSettingsSerializer implements TypeSerializer<ShopSettings> {
     @Override
     public void serialize(Type type, @Nullable ShopSettings obj, ConfigurationNode node) throws SerializationException {
 
-    }
+    }*/
 
 }

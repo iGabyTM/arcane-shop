@@ -7,11 +7,9 @@ import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
-import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
 import me.gabytm.minecraft.arcaneshop.config.configs.MainConfig;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.shop.ShopImpl;
-import me.gabytm.minecraft.arcaneshop.shop.ShopSettingsImpl;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import net.kyori.adventure.text.Component;
@@ -27,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ShopSerializer implements TypeSerializer<Shop> {
 
@@ -43,12 +40,18 @@ public class ShopSerializer implements TypeSerializer<Shop> {
 
     @Override
     public Shop deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        final DisplayItem item = itemCreator.createFromConfig(node.node("displayItem"));
-        System.out.println("item = " + item);
-        final Component title = node.node("title").get(Component.class, Component.empty());
-        System.out.println("title = " + title);
-        final int slot = node.node("slot").getInt();
-        System.out.println("slot = " + slot);
+        final DisplayItem mainMenuItem = itemCreator.createFromConfig(node.node("mainMenu", "item"));
+        final int mainMenuSlot = node.node("mainMenu", "slot").getInt();
+
+
+        final Component menuTitle = node.node("menu", "title").get(Component.class, Component.empty());
+        int menuRows = node.node("menu", "rows").getInt(6);
+
+        if (menuRows < 1 || menuRows > 6) {
+            Logging.warning("Invalid number of rows {0}, the value should be between 1 and 6 rows, using 6 as default value", menuRows);
+            menuRows = 6;
+        }
+
 
         final List<ShopDecorationItem> decorationItems = new ArrayList<>();
 
@@ -61,7 +64,6 @@ public class ShopSerializer implements TypeSerializer<Shop> {
                 }
             }
         }
-        System.out.println("decorationItems = " + decorationItems);
 
         final List<ShopItem> shopItems = new ArrayList<>();
 
@@ -73,7 +75,6 @@ public class ShopSerializer implements TypeSerializer<Shop> {
             Logging.warning("No items in shop");
         }
 
-        System.out.println("shopItems = " + shopItems);
         /*final ShopSettings settings = node.node("settings").get(
                 ShopSettings.class,
                 (Supplier<ShopSettings>) () -> new ShopSettingsImpl(economyManager.getDefaultProvider(), mainConfig.getShopActions())
@@ -118,9 +119,9 @@ public class ShopSerializer implements TypeSerializer<Shop> {
             }
         }
 
+        // Add the missing ShopActions from the main config
         mainConfig.getShopActions().forEach(actions::putIfAbsent);
-
-        return new ShopImpl(item.item(), title, slot, shopItems, decorationItems, economyProvider, actions);
+        return new ShopImpl(mainMenuItem.item(), mainMenuSlot, menuTitle, menuRows, shopItems, decorationItems, economyProvider, actions);
     }
 
     @Override

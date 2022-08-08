@@ -35,8 +35,8 @@ public class ShopMenu {
         }
 
         final Gui gui = Gui.gui()
-                .title(shop.getTitle())
-                .rows(6)
+                .title(shop.getMenuTitle())
+                .rows(shop.getMenuRows())
                 .disableAllInteractions()
                 .create();
 

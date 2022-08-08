@@ -32,7 +32,7 @@ public class MainMenu {
         for (final Map.Entry<String, Shop> entry : shopManager.getShops().entrySet()) {
             final Shop shop = entry.getValue();
 
-            gui.setItem(shop.getSlot(), new GuiItem(shop.getDisplayItem(), event -> {
+            gui.setItem(shop.getMainMenuSlot(), new GuiItem(shop.getMainMenuItem(), event -> {
                 if (player.hasPermission("arcaneshop.shop." + entry.getKey())) {
                     player.sendMessage("Opening shop " + entry.getKey());
                     menuManager.openShop(player, shop, 1);

@@ -5,20 +5,23 @@ import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
-import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.util.List;
 import java.util.Map;
 
 public class ShopImpl implements Shop {
 
-    private final ItemStack displayItem;
-    private final Component title;
-    private final int slot;
+    private final ItemStack mainMenuItem;
+    private final int mainMenuSlot;
+
+    private final Component menuTitle;
+    private final int menuRows;
+
     private final List<@NotNull ShopItem> items;
     private final int pages;
     private final List<@NotNull ShopDecorationItem> displayItems;
@@ -26,14 +29,15 @@ public class ShopImpl implements Shop {
     private final Map<@NotNull ShopAction, @NotNull ClickType> shopActions;
 
     public ShopImpl(
-            @NotNull final ItemStack displayItem, @NotNull final Component title,
-            final int slot, @NotNull final List<@NotNull ShopItem> items,
-            @NotNull final List<@NotNull ShopDecorationItem> displayItems, @NotNull final EconomyProvider economyProvider,
-            @NotNull final Map<@NotNull ShopAction, @NotNull ClickType> shopActions
+            @NotNull final ItemStack mainMenuItem, @Range(from = 0, to = 54) final int mainMenuSlot,
+            @NotNull final Component menuTitle, @Range(from = 1, to = 6) final int menuRows,
+            @NotNull final List<@NotNull ShopItem> items, @NotNull final List<@NotNull ShopDecorationItem> displayItems,
+            @NotNull final EconomyProvider economyProvider, @NotNull final Map<@NotNull ShopAction, @NotNull ClickType> shopActions
     ) {
-        this.displayItem = displayItem;
-        this.title = title;
-        this.slot = slot;
+        this.mainMenuItem = mainMenuItem;
+        this.mainMenuSlot = mainMenuSlot;
+        this.menuTitle = menuTitle;
+        this.menuRows = menuRows;
         this.items = items;
         this.pages = (int) items.stream().map(ShopItem::getPage).distinct().count();
         this.displayItems = displayItems;
@@ -42,19 +46,26 @@ public class ShopImpl implements Shop {
     }
 
     @Override
-    public @NotNull ItemStack getDisplayItem() {
-        return displayItem;
+    public @NotNull ItemStack getMainMenuItem() {
+        return mainMenuItem;
     }
 
     @Override
-    public @NotNull Component getTitle() {
-        return title;
+    public int getMainMenuSlot() {
+        return mainMenuSlot;
+    }
+
+
+    @Override
+    public @NotNull Component getMenuTitle() {
+        return menuTitle;
     }
 
     @Override
-    public int getSlot() {
-        return slot;
+    public int getMenuRows() {
+        return menuRows;
     }
+
 
     @Override
     public @NotNull List<@NotNull ShopItem> getItems() {

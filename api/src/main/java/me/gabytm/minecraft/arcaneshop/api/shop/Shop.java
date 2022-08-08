@@ -12,11 +12,15 @@ import java.util.Map;
 
 public interface Shop {
 
-    @NotNull ItemStack getDisplayItem();
+    @NotNull ItemStack getMainMenuItem();
 
-    @NotNull Component getTitle();
+    int getMainMenuSlot();
 
-    int getSlot();
+
+    @NotNull Component getMenuTitle();
+
+    int getMenuRows();
+
 
     @NotNull List<@NotNull ShopItem> getItems();
 
