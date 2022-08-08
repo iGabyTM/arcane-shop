@@ -69,7 +69,7 @@ public class DisplayItemSerializer implements TypeSerializer<DisplayItem> {
             return Component.empty();
         }
 
-        return (ServerVersion.IS_ITEM_LEGACY ? LEGACY_SERIALIZER : GSON_SERIALIZER).deserialize(name);
+        return (ServerVersion.IS_LEGACY ? LEGACY_SERIALIZER : GSON_SERIALIZER).deserialize(name);
     }
 
     private @NotNull List<Component> getLore(@NotNull final ItemMeta meta) {
@@ -87,7 +87,7 @@ public class DisplayItemSerializer implements TypeSerializer<DisplayItem> {
             return Collections.emptyList();
         }
 
-        final ComponentSerializer<Component, ? extends Component, String> serializer = ServerVersion.IS_ITEM_LEGACY ? LEGACY_SERIALIZER : GSON_SERIALIZER;
+        final ComponentSerializer<Component, ? extends Component, String> serializer = ServerVersion.IS_LEGACY ? LEGACY_SERIALIZER : GSON_SERIALIZER;
         return lore.stream().map(serializer::deserialize).collect(Collectors.toList());
     }
 
