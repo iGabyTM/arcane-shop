@@ -5,6 +5,7 @@ plugins {
 repositories {
     maven("https://repo.triumphteam.dev/snapshots")
     maven("https://jitpack.io")
+    maven("https://repo.codemc.org/repository/maven-public/")
 }
 
 dependencies {
@@ -12,6 +13,7 @@ dependencies {
     implementation(libs.bundles.adventure)
     implementation(libs.bundles.configurate)
     implementation(libs.bundles.triumph)
+    implementation("de.tr7zw:item-nbt-api-plugin:2.10.0")
 
     compileOnly(libs.jetbrains.annotations)
 

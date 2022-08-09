@@ -1,18 +1,25 @@
 package me.gabytm.minecraft.arcaneshop.menu.menus;
 
+import de.tr7zw.nbtapi.NBTItem;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.components.GuiAction;
 import dev.triumphteam.gui.guis.Gui;
+import me.gabytm.minecraft.arcaneshop.ArcaneShop;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.nbt.api.BinaryTagHolder;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,6 +27,8 @@ import java.util.function.Consumer;
 
 public class AmountSelectorMenu {
 
+    //TODO move this
+    private final BukkitAudiences audiences = BukkitAudiences.create(JavaPlugin.getProvidingPlugin(ArcaneShop.class));
     private final MenuManager menuManager;
 
     public AmountSelectorMenu(@NotNull final MenuManager menuManager) {
@@ -38,7 +47,16 @@ public class AmountSelectorMenu {
             final double cost = amount.get() * item.getBuyPrice();
 
             if (shop.getEconomyProvider().has(player, cost)) {
-                player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount.get(), item.itemStack().getType(), cost));
+                final String sNbt = new NBTItem(item.displayItem().item()).toString();
+                //noinspection PatternValidation
+                final Key key = Key.key(Key.MINECRAFT_NAMESPACE, item.displayItem().item().getType().getKey().getKey());
+                final BinaryTagHolder binaryTagHolder = BinaryTagHolder.binaryTagHolder(sNbt);
+                final HoverEvent<HoverEvent.ShowItem> hover = HoverEvent.showItem(key, amount.get(), binaryTagHolder);
+
+                final Component message = Component.text("You have bought " + amount.get() + "x [", NamedTextColor.GREEN)
+                        .append(Component.text(item.displayItem().name()).hoverEvent(hover))
+                        .append(Component.text("] for " + String.format("%.2f", cost)));
+                audiences.player(player).sendMessage(message);
                 menuManager.openShop(player, shop, page);
             } else {
                 player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.itemStack().getType(), cost));
