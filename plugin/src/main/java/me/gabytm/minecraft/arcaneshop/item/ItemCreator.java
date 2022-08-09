@@ -44,7 +44,7 @@ public class ItemCreator {
     }
 
     private @NotNull Component removeItalic(@NotNull final Component component) {
-        return component.decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
+        return Component.empty().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).append(component);
     }
 
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
