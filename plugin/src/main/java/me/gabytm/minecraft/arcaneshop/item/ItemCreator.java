@@ -10,6 +10,7 @@ import me.gabytm.minecraft.arcaneshop.util.Logging;
 import me.gabytm.minecraft.arcaneshop.util.ServerVersion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -39,6 +40,10 @@ public class ItemCreator {
 
     private boolean isPlayerHead(@NotNull final Material material, final short damage) {
         return ServerVersion.IS_LEGACY ? (material == PLAYER_HEAD && damage == 3) : (material == PLAYER_HEAD);
+    }
+
+    private @NotNull Component removeItalic(@NotNull final Component component) {
+        return component.decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
     }
 
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
@@ -91,8 +96,12 @@ public class ItemCreator {
 
         final int customModelData = node.node("customModelData").getInt();
 
-        builder.name(node.node("name").get(Component.class, Component.empty()))
-                .lore(node.node("lore").getList(Component.class, Collections.emptyList()))
+        builder.name(removeItalic(node.node("name").get(Component.class, Component.empty())))
+                .lore(
+                        node.node("lore").getList(Component.class, Collections.emptyList()).stream()
+                                .map(this::removeItalic)
+                                .collect(Collectors.toList())
+                )
                 .flags(flags)
                 .enchant(enchantments, true)
                 .unbreakable(node.node("unbreakable").getBoolean());
