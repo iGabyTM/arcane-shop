@@ -5,18 +5,20 @@ import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
+import java.util.List;
+
 public class ShopDecorationItemImpl implements ShopDecorationItem {
 
     private final DisplayItem displayItem;
-    private final int slot;
+    private final List<@NotNull Integer> slots;
     private final int page;
 
     public ShopDecorationItemImpl(
-            @NotNull final DisplayItem displayItem, @Range(from = 0, to = 53) final int slot,
+            @NotNull final DisplayItem displayItem, final List<@NotNull @Range(from = 0, to = 53) Integer> slots,
             @Range(from = -1, to = Integer.MAX_VALUE) final int page
     ) {
         this.displayItem = displayItem;
-        this.slot = slot;
+        this.slots = slots;
         this.page = page;
     }
 
@@ -26,8 +28,8 @@ public class ShopDecorationItemImpl implements ShopDecorationItem {
     }
 
     @Override
-    public int getSlot() {
-        return slot;
+    public @NotNull List<@NotNull Integer> getSlots() {
+        return slots;
     }
 
     @Override

@@ -42,7 +42,7 @@ public class ShopMenu {
 
         shop.getDecorations().stream()
                 .filter(it -> it.getPage() == -1 || it.getPage() == page)
-                .forEach(item -> gui.setItem(item.getSlot(), new GuiItem(item.getDisplayItem().item())));
+                .forEach(item -> gui.setItem(item.getSlots(), new GuiItem(item.getDisplayItem().item())));
 
         for (final ShopItem item : items) {
             final GuiItem guiItem = ItemBuilder.from(item.displayItem().item().clone())

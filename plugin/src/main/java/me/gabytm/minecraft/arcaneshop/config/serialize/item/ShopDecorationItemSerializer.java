@@ -12,6 +12,8 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
 
 public class ShopDecorationItemSerializer implements TypeSerializer<ShopDecorationItem> {
 
@@ -30,7 +32,9 @@ public class ShopDecorationItemSerializer implements TypeSerializer<ShopDecorati
             return null;
         }
 
-        return new ShopDecorationItemImpl(displayItem, node.node("slot").getInt(), node.node("page").getInt(-1));
+        final List<Integer> slots = node.node("slots").getList(Integer.class, Collections.singletonList(node.node("slot").getInt()));
+        final int page = node.node("page").getInt(-1);
+        return new ShopDecorationItemImpl(displayItem, slots, page);
     }
 
     @Override
