@@ -5,6 +5,7 @@ import com.google.common.primitives.Ints;
 import dev.triumphteam.gui.builder.item.BaseItemBuilder;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
+import me.gabytm.minecraft.arcaneshop.api.util.collection.Pair;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import me.gabytm.minecraft.arcaneshop.util.ServerVersion;
@@ -119,15 +120,15 @@ public class ItemCreator {
         return new DisplayItemImpl(builder.build(), name, lore);
     }
 
-    public @NotNull DisplayItem createFromConfig(@NotNull final ConfigurationNode node) throws SerializationException {
+    public @NotNull Pair<@NotNull DisplayItem, @NotNull Boolean> createFromConfig(@NotNull final ConfigurationNode node) throws SerializationException {
         final ConfigurationNode materialNode = node.node("material");
 
         if (materialNode.empty()) {
             final ItemStack item = ItemBuilder.from(Material.BARRIER)
-                    .name(Component.text("Missing material @ " + getNodePath(node), NamedTextColor.RED))
+                    .name(removeItalic(Component.text("Missing material (" + getNodePath(node) + ')', NamedTextColor.RED)))
                     .glow()
                     .build();
-            return new DisplayItemImpl(item, "", Collections.emptyList());
+            return Pair.of(new DisplayItemImpl(item, "", Collections.emptyList()), false);
         }
 
         final String materialName = materialNode.getString("");
@@ -135,17 +136,17 @@ public class ItemCreator {
 
         if (material == null) {
             final ItemStack item = ItemBuilder.from(Material.BARRIER)
-                    .name(Component.text(String.format("Invalid material '%s' (%s)", materialName, getNodePath(materialNode)), NamedTextColor.RED))
+                    .name(removeItalic(Component.text(String.format("Invalid material '%s' (%s)", materialName, getNodePath(materialNode)), NamedTextColor.RED)))
                     .glow()
                     .build();
-            return new DisplayItemImpl(item, "", Collections.emptyList());
+            return Pair.of(new DisplayItemImpl(item, "", Collections.emptyList()), false);
         }
 
         final int amount = node.node("amount").getInt(1);
         final short damage = node.node("damage").get(Short.class, (short) 0);
         //noinspection deprecation
         final ItemBuilder builder = ItemBuilder.from(new ItemStack(material, amount, damage));
-        return setMeta(node, builder);
+        return Pair.of(setMeta(node, builder), true);
     }
 
 }
