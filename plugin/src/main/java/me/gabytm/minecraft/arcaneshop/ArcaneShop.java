@@ -4,6 +4,7 @@ import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPI;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPIImpl;
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
+import me.gabytm.minecraft.arcaneshop.commands.ReloadCommand;
 import me.gabytm.minecraft.arcaneshop.commands.ShopCommand;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.economy.EconomyManagerImpl;
@@ -25,7 +26,7 @@ public class ArcaneShop extends JavaPlugin {
 
     private void registerCommands() {
         final BukkitCommandManager<CommandSender> manager = BukkitCommandManager.create(this);
-        manager.registerCommand(new ShopCommand(menuManager));
+        manager.registerCommand(new ReloadCommand(this), new ShopCommand(menuManager));
     }
 
     @Override
