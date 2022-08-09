@@ -89,6 +89,7 @@ public class ShopMenu {
             gui.setItem(6, 6, arrow);
         }
 
+        gui.setItem(6, 5, ItemBuilder.from(Material.BARRIER).asGuiItem(event -> menuManager.openMain(player)));
         gui.open(player);
     }
 
