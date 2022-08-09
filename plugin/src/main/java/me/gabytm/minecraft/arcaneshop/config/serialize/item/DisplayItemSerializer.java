@@ -93,7 +93,7 @@ public class DisplayItemSerializer implements TypeSerializer<DisplayItem> {
 
     @Override
     public DisplayItem deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        return itemCreator.createFromConfig(node);
+        return itemCreator.createFromConfig(node).first();
     }
 
     @Override

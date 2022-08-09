@@ -40,7 +40,7 @@ public class ShopSerializer implements TypeSerializer<Shop> {
 
     @Override
     public Shop deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        final DisplayItem mainMenuItem = itemCreator.createFromConfig(node.node("mainMenu", "item"));
+        final DisplayItem mainMenuItem = itemCreator.createFromConfig(node.node("mainMenu", "item")).first();
         final int mainMenuSlot = node.node("mainMenu", "slot").getInt();
 
 
