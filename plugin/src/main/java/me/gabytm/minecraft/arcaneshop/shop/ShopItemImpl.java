@@ -14,9 +14,12 @@ public class ShopItemImpl implements ShopItem {
     private final double buyPrice;
     private final double sellPrice;
 
+    private final boolean acceptOnlyExactItems;
+
     public ShopItemImpl(
             @NotNull final DisplayItem displayItem, @NotNull final ItemStack item, final int slot,
-            final int page, final double buyPrice, final double sellPrice
+            final int page, final double buyPrice, final double sellPrice,
+            final boolean acceptOnlyExactItems
     ) {
         this.displayItem = displayItem;
         this.item = item;
@@ -24,6 +27,7 @@ public class ShopItemImpl implements ShopItem {
         this.page = page;
         this.buyPrice = buyPrice;
         this.sellPrice = sellPrice;
+        this.acceptOnlyExactItems = acceptOnlyExactItems;
     }
 
     @Override
@@ -54,6 +58,11 @@ public class ShopItemImpl implements ShopItem {
     @Override
     public double getSellPrice() {
         return sellPrice;
+    }
+
+    @Override
+    public boolean acceptOnlyExactItems() {
+        return acceptOnlyExactItems;
     }
 
 }

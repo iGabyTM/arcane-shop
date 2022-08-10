@@ -31,7 +31,9 @@ public class ShopItemSerializer implements TypeSerializer<ShopItem> {
         final double buyPrice = displayItem.second() ? node.node("buyPrice").getDouble() : 0.0d;
         final double sellPrice = displayItem.second() ? node.node("sellPrice").getDouble() : 0.0d;
 
-        return new ShopItemImpl(displayItem.first(), displayItem.first().item(), slot, page, buyPrice, sellPrice);
+        final boolean acceptOnlyExactItems = node.node("acceptOnlyExactItems").getBoolean(true);
+
+        return new ShopItemImpl(displayItem.first(), displayItem.first().item(), slot, page, buyPrice, sellPrice, acceptOnlyExactItems);
     }
 
     @Override

@@ -18,4 +18,6 @@ public interface ShopItem {
 
     double getSellPrice();
 
+    boolean acceptOnlyExactItems();
+
 }
