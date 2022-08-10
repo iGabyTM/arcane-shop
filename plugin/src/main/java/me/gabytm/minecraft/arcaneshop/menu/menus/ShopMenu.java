@@ -9,11 +9,13 @@ import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,28 +50,34 @@ public class ShopMenu {
             final GuiItem guiItem = ItemBuilder.from(item.displayItem().item().clone())
                     .lore(lore -> {
                         if (item.getSellPrice() != 0.0d) {
-                            lore.add(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN));
+                            lore.add(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
                         }
 
                         if (item.getBuyPrice() != 0.0d) {
-                            lore.add(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED));
+                            lore.add(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED).decoration(TextDecoration.ITALIC, false));
                         }
                     })
                     .asGuiItem(event -> {
                         if (item.getSellPrice() != 0.0d && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
-                            if (!shop.getEconomyProvider().has(player, item.getBuyPrice())) {
-                                player.sendMessage(ChatColor.RED + "You don't have " + item.getSellPrice() + " to sell " + item.itemStack().getType());
-                            } else {
-                                menuManager.openAmountSelectorForSell(item, player, shop, page);
+                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it.getType() == item.itemStack().getType())) {
+                                player.sendMessage(ChatColor.RED + "You don't have any " + item.itemStack().getType() + " in your inventory");
+                                return;
                             }
+
+                            menuManager.openAmountSelectorForSell(item, player, shop, page);
                             return;
                         }
 
                         if (item.getBuyPrice() != 0.0d && shop.getShopActions().get(ShopAction.BUY) == event.getClick()) {
-                            if (!shop.getEconomyProvider().has(player, item.getBuyPrice())) {
-                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.itemStack().getType());
-                            } else {
+                            if (player.getInventory().firstEmpty() == -1) {
+                                player.sendMessage(ChatColor.RED + "Your inventory is full!");
+                                return;
+                            }
+
+                            if (shop.getEconomyProvider().has(player, item.getBuyPrice())) {
                                 menuManager.openAmountSelectorForBuy(item, player, shop, page);
+                            } else {
+                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.itemStack().getType());
                             }
                         }
                     });

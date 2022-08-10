@@ -36,6 +36,10 @@ public class AmountSelectorMenu {
     private final MenuManager menuManager;
     private final ConfigManager configManager;
 
+    private void sell(@NotNull final Player player, @NotNull final ShopItem item, final int amount) {
+        //player.getInventory().remove();
+    }
+
     public AmountSelectorMenu(@NotNull final MenuManager menuManager, @NotNull final ConfigManager configManager) {
         this.menuManager = menuManager;
         this.configManager = configManager;
@@ -50,23 +54,32 @@ public class AmountSelectorMenu {
                 .create();
 
         final AtomicInteger amount = new AtomicInteger(item.itemStack().getAmount());
-        final GuiAction<InventoryClickEvent> buyAction = (event) -> {
-            final double cost = amount.get() * item.getBuyPrice();
+        final GuiAction<InventoryClickEvent> clickAction = (event) -> {
+            final double cost = amount.get() * (buy ? item.getBuyPrice() : item.getSellPrice());
 
-            if (shop.getEconomyProvider().has(player, cost)) {
-                final String sNbt = new NBTItem(item.displayItem().item()).toString();
-                //noinspection PatternValidation
-                final Key key = Key.key(Key.MINECRAFT_NAMESPACE, item.displayItem().item().getType().getKey().getKey());
-                final BinaryTagHolder binaryTagHolder = BinaryTagHolder.binaryTagHolder(sNbt);
-                final HoverEvent<HoverEvent.ShowItem> hover = HoverEvent.showItem(key, amount.get(), binaryTagHolder);
+            if (buy) {
+                if (shop.getEconomyProvider().has(player, cost)) {
+                    if (!shop.getEconomyProvider().subtract(player, cost)) {
+                        player.sendMessage("Something went wrong while subtracting " + String.format("%.2f", cost) + " from your account");
+                        menuManager.openShop(player, shop, page);
+                    }
 
-                final Component message = Component.text("You have bought " + amount.get() + "x [", NamedTextColor.GREEN)
-                        .append(Component.text(item.displayItem().name()).hoverEvent(hover))
-                        .append(Component.text("] for " + String.format("%.2f", cost)));
-                audiences.player(player).sendMessage(message);
-                menuManager.openShop(player, shop, page);
-            } else {
+                    final String sNbt = new NBTItem(item.displayItem().item()).toString();
+                    //noinspection PatternValidation
+                    final Key key = Key.key(Key.MINECRAFT_NAMESPACE, item.displayItem().item().getType().getKey().getKey());
+                    final BinaryTagHolder binaryTagHolder = BinaryTagHolder.binaryTagHolder(sNbt);
+                    final HoverEvent<HoverEvent.ShowItem> hover = HoverEvent.showItem(key, amount.get(), binaryTagHolder);
+
+                    final Component message = Component.text("You have bought " + amount.get() + "x [", NamedTextColor.GREEN)
+                            .append(Component.text(item.displayItem().name()).hoverEvent(hover))
+                            .append(Component.text("] for " + String.format("%.2f", cost)));
+                    audiences.player(player).sendMessage(message);
+                    menuManager.openShop(player, shop, page);
+                    return;
+                }
+
                 player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.itemStack().getType(), cost));
+                return;
             }
         };
         final Consumer<Integer> updateAmount = (amt) -> gui.updateItem(
@@ -82,7 +95,7 @@ public class AmountSelectorMenu {
                             }
                         })
                         .amount(amt)
-                        .asGuiItem(buyAction)
+                        .asGuiItem(clickAction)
         );
 
         updateAmount.accept(item.itemStack().getAmount());
