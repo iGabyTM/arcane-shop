@@ -57,7 +57,11 @@ public class ShopMenu {
                     })
                     .asGuiItem(event -> {
                         if (item.getSellPrice() != 0.0d && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
-                            player.sendMessage(ChatColor.GREEN + "Selling " + item.itemStack().getType() + " for " + item.getSellPrice());
+                            if (!shop.getEconomyProvider().has(player, item.getBuyPrice())) {
+                                player.sendMessage(ChatColor.RED + "You don't have " + item.getSellPrice() + " to sell " + item.itemStack().getType());
+                            } else {
+                                menuManager.openAmountSelectorForSell(item, player, shop, page);
+                            }
                             return;
                         }
 
@@ -65,7 +69,7 @@ public class ShopMenu {
                             if (!shop.getEconomyProvider().has(player, item.getBuyPrice())) {
                                 player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.itemStack().getType());
                             } else {
-                                menuManager.openAmountSelector(item, player, shop, page);
+                                menuManager.openAmountSelectorForBuy(item, player, shop, page);
                             }
                         }
                     });

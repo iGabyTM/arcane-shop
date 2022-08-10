@@ -7,16 +7,19 @@ import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
+import me.gabytm.minecraft.arcaneshop.config.configs.AmountSelectorMenuConfig;
 import me.gabytm.minecraft.arcaneshop.config.configs.ItemsConfig;
 import me.gabytm.minecraft.arcaneshop.config.configs.MainConfig;
 import me.gabytm.minecraft.arcaneshop.config.serialize.ComponentSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.EconomyProviderSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.item.AmountSelectorButtonSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.DisplayItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.ShopDecorationItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopSettingsSerializer;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
+import me.gabytm.minecraft.arcaneshop.menu.menus.amountselector.AmountSelectorButton;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +35,8 @@ import java.nio.file.Paths;
 public class ConfigManager {
 
     private MainConfig mainConfig;
+    private AmountSelectorMenuConfig buyAmountSelectorMenuConfig;
+    private AmountSelectorMenuConfig sellAmountSelectorMenuConfig;
     private ItemsConfig itemsConfig;
 
     private final Path dataFolder;
@@ -88,6 +93,7 @@ public class ConfigManager {
                                                 //.register(ShopSettings.class, new ShopSettingsSerializer(economyManager, mainConfig))
                                                 .register(ShopItem.class, new ShopItemSerializer(itemCreator))
                                                 .register(Shop.class, new ShopSerializer(itemCreator, mainConfig, economyManager))
+                                                .register(AmountSelectorButton.class, new AmountSelectorButtonSerializer())
                                 )
                 )
                 .indent(2)
@@ -101,6 +107,19 @@ public class ConfigManager {
 
     public void loadMainConfig() {
         mainConfig = load(MainConfig.class, Paths.get("config.yml"));
+    }
+
+    public AmountSelectorMenuConfig getBuyAmountSelectorMenuConfig() {
+        return buyAmountSelectorMenuConfig;
+    }
+
+    public AmountSelectorMenuConfig getSellAmountSelectorMenuConfig() {
+        return sellAmountSelectorMenuConfig;
+    }
+
+    public void loadAmountSelectorMenuConfigs() {
+        buyAmountSelectorMenuConfig = load(AmountSelectorMenuConfig.class, Paths.get("menus", "buy-amount-selector.yml"));
+        sellAmountSelectorMenuConfig = load(AmountSelectorMenuConfig.class, Paths.get("menus", "sell-amount-selector.yml"));
     }
 
     public ItemsConfig getItemsConfig() {

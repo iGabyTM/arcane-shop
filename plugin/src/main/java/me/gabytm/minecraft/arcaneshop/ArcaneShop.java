@@ -38,7 +38,7 @@ public class ArcaneShop extends JavaPlugin {
 
         api = new ArcaneShopAPIImpl(economyManager, new ShopManagerImpl(new File(getDataFolder(), "shops")));
         load();
-        this.menuManager = new MenuManager(api.getShopManager());
+        this.menuManager = new MenuManager(api.getShopManager(), configManager);
         registerCommands();
 
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);
@@ -47,6 +47,7 @@ public class ArcaneShop extends JavaPlugin {
     public void load() {
         configManager.loadMainConfig();
         configManager.loadItemsConfig();
+        configManager.loadAmountSelectorMenuConfigs();
 
         api.getEconomyManager().setDefaultProvider(api.getEconomyManager().getProvider(configManager.getMainConfig().getDefaultEconomyProvider()));
         ((ShopManagerImpl) api.getShopManager()).loadShops(configManager);
