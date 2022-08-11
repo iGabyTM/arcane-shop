@@ -12,6 +12,7 @@ import me.gabytm.minecraft.arcaneshop.api.util.collection.Pair;
 import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.item.head.HeadTextureManager;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
+import me.gabytm.minecraft.arcaneshop.util.Items;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import me.gabytm.minecraft.arcaneshop.util.ServerVersion;
 import net.kyori.adventure.text.Component;
@@ -37,8 +38,6 @@ import java.util.stream.Collectors;
 
 public class ItemCreator {
 
-    private static final Material PLAYER_HEAD = ServerVersion.IS_LEGACY ? Material.valueOf("SKULL_ITEM") : Material.PLAYER_HEAD;
-
     private final HeadTextureManager headTextureManager = new HeadTextureManager();
     private final CustomItemManager customItemManager;
 
@@ -50,10 +49,6 @@ public class ItemCreator {
         return Arrays.stream(node.path().array())
                 .map(Object::toString)
                 .collect(Collectors.joining("."));
-    }
-
-    private boolean isPlayerHead(@NotNull final Material material, final short damage) {
-        return ServerVersion.IS_LEGACY ? (material == PLAYER_HEAD && damage == 3) : (material == PLAYER_HEAD);
     }
 
     private @NotNull Component removeItalic(@NotNull final Component component) {
@@ -173,7 +168,7 @@ public class ItemCreator {
                 final CustomItemHandler<?> customItemHandler = customItemManager.getHandler(customItemHandlerId);
 
                 if (customItemHandler != null) {
-                    final Pair<ItemStack, ? extends CustomItemProperties> pair = customItemHandler.getItem(itemStack, customNode);
+                    final Pair<ItemStack, ? extends CustomItemProperties> pair = customItemHandler.createItem(itemStack, customNode);
                     final DisplayItem displayItem = setMeta(node, ItemBuilder.from(pair.first()));
                     return Pair.of(new DisplayItemImpl(displayItem.item(), displayItem.name(), displayItem.lore(), true, customItemHandlerId, pair.second()), true);
                 }
@@ -182,7 +177,7 @@ public class ItemCreator {
 
         BaseItemBuilder<?> itemBuilder = ItemBuilder.from(itemStack);
 
-        if (isPlayerHead(material, damage)) {
+        if (Items.isPlayerHead(material, damage)) {
             // prefix;value
             final String[] texture = node.node("texture").getString("").split(";", 2);
 
