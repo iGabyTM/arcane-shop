@@ -7,7 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
@@ -16,8 +18,8 @@ public class AmountSelectorMenuConfig {
 
     private Component title = Component.empty();
     private int rows = 6;
-    @Setting("itemSlot")
-    private int itemSlot = 10;
+
+    private Item item;
 
     private Map<@NotNull String, @Nullable AmountSelectorButton> buttons = new HashMap<>();
 
@@ -30,12 +32,28 @@ public class AmountSelectorMenuConfig {
         return rows;
     }
 
-    public int getItemSlot() {
-        return itemSlot;
+    public Item item() {
+        return item;
     }
 
     public Map<String, AmountSelectorButton> getButtons() {
         return buttons;
+    }
+
+    @ConfigSerializable
+    public static class Item {
+
+        private int slot = 4;
+        private List<String> lore = Collections.emptyList();
+
+        public int getSlot() {
+            return slot;
+        }
+
+        public List<String> getLore() {
+            return lore;
+        }
+
     }
 
 }

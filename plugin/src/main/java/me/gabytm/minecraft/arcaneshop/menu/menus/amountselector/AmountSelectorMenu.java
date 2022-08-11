@@ -21,6 +21,8 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -30,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 public class AmountSelectorMenu {
 
@@ -47,6 +49,94 @@ public class AmountSelectorMenu {
     public AmountSelectorMenu(@NotNull final MenuManager menuManager, @NotNull final ConfigManager configManager) {
         this.menuManager = menuManager;
         this.configManager = configManager;
+    }
+
+    private @NotNull IntConsumer createUpdateAmountAction(
+            @NotNull final Gui gui, @NotNull final AmountSelectorMenuConfig.Item config,
+            @NotNull final ShopItem item, @NotNull final AtomicInteger amount,
+            @NotNull final GuiAction<InventoryClickEvent> clickAction, final boolean buy
+    ) {
+        return (amt) -> gui.updateItem(
+                config.getSlot(),
+                ItemBuilder.from(item.displayItem().item().clone())
+                        .lore(lore -> {
+                            if (config.getLore().isEmpty()) {
+                                return;
+                            }
+
+                            final double price = (buy ? item.getBuyPrice() : item.getSellPrice()) * amt;
+                            final TagResolver amountPlaceholder = Placeholder.component("amount", Component.text(amt));
+                            final TagResolver pricePlaceholder = Placeholder.component("price", Component.text(String.format("%.2f", price)));
+
+                            config.getLore().stream()
+                                    .map(it -> MiniMessage.miniMessage().deserialize(it, amountPlaceholder, pricePlaceholder))
+                                    .map(it -> Component.empty().decoration(TextDecoration.ITALIC, false).append(it))
+                                    .forEach(lore::add);
+                        })
+                        .amount(amt)
+                        .asGuiItem(clickAction)
+        );
+    }
+
+    private void addButtons(
+            @NotNull final Gui gui, @NotNull final AmountSelectorMenuConfig config,
+            @NotNull final ShopItem item, @NotNull final AtomicInteger amount,
+            @NotNull final IntConsumer updateAmount, final boolean buy
+    ) {
+        for (final Map.Entry<String, AmountSelectorButton> entry : config.getButtons().entrySet()) {
+            final AmountSelectorButton button = entry.getValue();
+
+            if (button == null) {
+                continue;
+            }
+
+            if (button.getSlot() >= config.getRows() * 9) {
+                Logging.warning(
+                        "Could not set button {0} in slot {1} ({2} selector menu), only {3} slots available",
+                        entry.getKey(), button.getSlot(), (buy ? "buy" : "sell"), config.getRows() * 9 - 1
+                );
+                continue;
+            }
+
+            gui.setItem(
+                    button.getSlot(),
+                    new GuiItem(button.getDisplayItem().item(), event -> {
+                        final int currentAmount = amount.get();
+
+                        switch (button.getAction()) {
+                            case ADD: {
+                                if (amount.get() != item.getItem().item().getMaxStackSize()) {
+                                    amount.set(Math.min(item.getItem().item().getMaxStackSize(), amount.get() + button.getValue()));
+                                }
+
+                                break;
+                            }
+
+                            case SET: {
+                                if (button.getValue() == -1) {
+                                    amount.set(item.getItem().item().getMaxStackSize());
+                                } else {
+                                    amount.set(Math.max(1, Math.min(button.getValue(), 64)));
+                                }
+
+                                break;
+                            }
+
+                            case SUBTRACT: {
+                                if (amount.get() != 1) {
+                                    amount.set(Math.max(1, amount.get() - button.getValue()));
+                                }
+
+                                break;
+                            }
+                        }
+
+                        if (amount.get() != currentAmount) {
+                            updateAmount.accept(amount.get());
+                        }
+                    })
+            );
+        }
     }
 
     public void open(@NotNull final ShopItem item, @NotNull final Player player, @NotNull final Shop shop, final int page, final boolean buy) {
@@ -111,78 +201,10 @@ public class AmountSelectorMenu {
 
             menuManager.openShop(player, shop, page);
         };
-        final Consumer<Integer> updateAmount = (amt) -> gui.updateItem(
-                config.getItemSlot(),
-                ItemBuilder.from(item.displayItem().item().clone())
-                        .lore(lore -> {
-                            lore.add(Component.empty());
-
-                            if (buy) {
-                                lore.add(Component.text("Buy " + amt + " for $" + String.format("%.2f", item.getBuyPrice() * amt), NamedTextColor.RED).decoration(TextDecoration.ITALIC, false));
-                            } else {
-                                lore.add(Component.text("Sell " + amt + " for $" + String.format("%.2f", item.getSellPrice() * amt), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
-                            }
-                        })
-                        .amount(amt)
-                        .asGuiItem(clickAction)
-        );
+        final IntConsumer updateAmount = createUpdateAmountAction(gui, config.item(), item, amount, clickAction, buy);
 
         updateAmount.accept(item.getAmount());
-
-        for (final Map.Entry<String, AmountSelectorButton> entry : config.getButtons().entrySet()) {
-            final AmountSelectorButton button = entry.getValue();
-
-            if (button == null) {
-                continue;
-            }
-
-            if (button.getSlot() >= config.getRows() * 9) {
-                Logging.warning(
-                        "Could not set button {0} in slot {1} ({2} selector menu), only {3} slots available",
-                        entry.getKey(), button.getSlot(), (buy ? "buy" : "sell"), config.getRows() * 9 - 1
-                );
-                continue;
-            }
-
-            gui.setItem(
-                    button.getSlot(),
-                    new GuiItem(button.getDisplayItem().item(), event -> {
-                        final int currentAmount = amount.get();
-
-                        switch (button.getAction()) {
-                            case ADD: {
-                                if (amount.get() != item.getItem().item().getMaxStackSize()) {
-                                    amount.set(Math.min(item.getItem().item().getMaxStackSize(), amount.get() + button.getValue()));
-                                }
-
-                                break;
-                            }
-
-                            case SET: {
-                                if (button.getValue() == -1) {
-                                    amount.set(item.getItem().item().getMaxStackSize());
-                                } else {
-                                    amount.set(Math.max(1, Math.min(button.getValue(), 64)));
-                                }
-
-                                break;
-                            }
-
-                            case SUBTRACT: {
-                                if (amount.get() != 1) {
-                                    amount.set(Math.max(1, amount.get() - button.getValue()));
-                                }
-
-                                break;
-                            }
-                        }
-
-                        if (amount.get() != currentAmount) {
-                            updateAmount.accept(amount.get());
-                        }
-                    })
-            );
-        }
+        addButtons(gui, config, item, amount, updateAmount, buy);
 
         gui.setItem(
                 5, 5,
