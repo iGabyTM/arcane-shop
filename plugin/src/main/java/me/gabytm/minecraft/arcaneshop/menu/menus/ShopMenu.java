@@ -60,7 +60,7 @@ public class ShopMenu {
                     })
                     .asGuiItem(event -> {
                         if (item.getSellPrice() != 0.0d && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
-                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it.getType() == item.getItem().item().getType())) {
+                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it != null && it.getType() == item.getItem().item().getType())) {
                                 player.sendMessage(ChatColor.RED + "You don't have any " + item.displayItem().item().getItemMeta().hasDisplayName() + " in your inventory");
                                 return;
                             }

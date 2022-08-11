@@ -81,7 +81,7 @@ public class AmountSelectorMenu {
                     audiences.player(player).sendMessage(message);
 
                     if (item.getItem().isCustom()) {
-                        customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).giveItems(player, item.getItem().getCustomItemProperties(), 1);
+                        customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).giveItems(player, item.getItem().getCustomItemProperties(), amount.get());
                     } else {
                         final ItemStack itemStack = item.getItem().item().clone();
                         itemStack.setAmount(amount.get());
@@ -95,6 +95,21 @@ public class AmountSelectorMenu {
                 player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.displayItem().item().getItemMeta().getDisplayName(), cost));
                 return;
             }
+
+            final int itemsTaken = customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).takeItems(player, item.getItem().getCustomItemProperties(), amount.get());
+
+            if (itemsTaken == 0) {
+                player.sendMessage(ChatColor.RED + "You don't have any " + item.displayItem().item().getItemMeta().getDisplayName() + " in your inventory!");
+            } else if (itemsTaken == amount.get()) {
+                shop.getEconomyProvider().add(player, cost);
+                player.sendMessage(ChatColor.GREEN + String.format("You sold %dx %s for %.2f", itemsTaken, item.displayItem().item().getItemMeta().getDisplayName(), cost));
+            } else {
+                final double moneyToGive = itemsTaken * item.getSellPrice();
+                shop.getEconomyProvider().add(player, moneyToGive);
+                player.sendMessage(ChatColor.YELLOW + String.format("You sold only %dx %s for %.2f", itemsTaken, item.displayItem().item().getItemMeta().getDisplayName(), moneyToGive));
+            }
+
+            menuManager.openShop(player, shop, page);
         };
         final Consumer<Integer> updateAmount = (amt) -> gui.updateItem(
                 config.getItemSlot(),
