@@ -48,6 +48,7 @@ public class ShopMenu {
 
         for (final ShopItem item : items) {
             final GuiItem guiItem = ItemBuilder.from(item.displayItem().item().clone())
+                    .amount(item.getAmount())
                     .lore(lore -> {
                         if (item.getSellPrice() != 0.0d) {
                             lore.add(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
@@ -59,8 +60,8 @@ public class ShopMenu {
                     })
                     .asGuiItem(event -> {
                         if (item.getSellPrice() != 0.0d && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
-                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it.getType() == item.itemStack().getType())) {
-                                player.sendMessage(ChatColor.RED + "You don't have any " + item.itemStack().getType() + " in your inventory");
+                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it.getType() == item.getItem().item().getType())) {
+                                player.sendMessage(ChatColor.RED + "You don't have any " + item.displayItem().item().getItemMeta().hasDisplayName() + " in your inventory");
                                 return;
                             }
 
@@ -77,7 +78,7 @@ public class ShopMenu {
                             if (shop.getEconomyProvider().has(player, item.getBuyPrice())) {
                                 menuManager.openAmountSelectorForBuy(item, player, shop, page);
                             } else {
-                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.itemStack().getType());
+                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.displayItem().item().getItemMeta().hasDisplayName());
                             }
                         }
                     });

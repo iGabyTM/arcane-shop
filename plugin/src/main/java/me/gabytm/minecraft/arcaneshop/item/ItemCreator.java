@@ -5,11 +5,17 @@ import com.google.common.primitives.Ints;
 import dev.triumphteam.gui.builder.item.BaseItemBuilder;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
+import me.gabytm.minecraft.arcaneshop.api.item.custom.CustomItemHandler;
+import me.gabytm.minecraft.arcaneshop.api.item.custom.CustomItemProperties;
+import me.gabytm.minecraft.arcaneshop.api.item.head.HeadTextureProvider;
 import me.gabytm.minecraft.arcaneshop.api.util.collection.Pair;
+import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
+import me.gabytm.minecraft.arcaneshop.item.head.HeadTextureManager;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import me.gabytm.minecraft.arcaneshop.util.ServerVersion;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -32,6 +38,13 @@ import java.util.stream.Collectors;
 public class ItemCreator {
 
     private static final Material PLAYER_HEAD = ServerVersion.IS_LEGACY ? Material.valueOf("SKULL_ITEM") : Material.PLAYER_HEAD;
+
+    private final HeadTextureManager headTextureManager = new HeadTextureManager();
+    private final CustomItemManager customItemManager;
+
+    public ItemCreator(@NotNull final CustomItemManager customItemManager) {
+        this.customItemManager = customItemManager;
+    }
 
     private @NotNull String getNodePath(@NotNull final ConfigurationNode node) {
         return Arrays.stream(node.path().array())
@@ -96,9 +109,13 @@ public class ItemCreator {
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         final int customModelData = node.node("customModelData").getInt();
+        final Component nameComponent = node.node("name").get(Component.class, Component.empty());
 
-        builder.name(removeItalic(node.node("name").get(Component.class, Component.empty())))
-                .lore(
+        if (!((TextComponent) nameComponent).content().isEmpty()) {
+            builder.name(removeItalic(nameComponent));
+        }
+
+        builder.lore(
                         node.node("lore").getList(Component.class, Collections.emptyList()).stream()
                                 .map(this::removeItalic)
                                 .collect(Collectors.toList())
@@ -144,9 +161,43 @@ public class ItemCreator {
 
         final int amount = node.node("amount").getInt(1);
         final short damage = node.node("damage").get(Short.class, (short) 0);
+
         //noinspection deprecation
-        final ItemBuilder builder = ItemBuilder.from(new ItemStack(material, amount, damage));
-        return Pair.of(setMeta(node, builder), true);
+        final ItemStack itemStack = new ItemStack(material, amount, damage);
+        final ConfigurationNode customNode = node.node("custom");
+
+        if (!customNode.empty()) {
+            final String customItemHandlerId = customNode.node("type").getString();
+
+            if (customItemHandlerId != null) {
+                final CustomItemHandler<?> customItemHandler = customItemManager.getHandler(customItemHandlerId);
+
+                if (customItemHandler != null) {
+                    final Pair<ItemStack, ? extends CustomItemProperties> pair = customItemHandler.getItem(itemStack, customNode);
+                    final DisplayItem displayItem = setMeta(node, ItemBuilder.from(pair.first()));
+                    return Pair.of(new DisplayItemImpl(displayItem.item(), displayItem.name(), displayItem.lore(), true, customItemHandlerId, pair.second()), true);
+                }
+            }
+        }
+
+        BaseItemBuilder<?> itemBuilder = ItemBuilder.from(itemStack);
+
+        if (isPlayerHead(material, damage)) {
+            // prefix;value
+            final String[] texture = node.node("texture").getString("").split(";", 2);
+
+            if (texture.length == 2) {
+                final HeadTextureProvider provider = headTextureManager.getProvider(texture[0]);
+
+                if (provider != null) {
+                    itemBuilder = ItemBuilder.skull(provider.applyTexture(texture[1]));
+                }
+            } else {
+                itemBuilder = ItemBuilder.skull(headTextureManager.getBase64().applyTexture(texture[0]));
+            }
+        }
+
+        return Pair.of(setMeta(node, itemBuilder), true);
     }
 
 }

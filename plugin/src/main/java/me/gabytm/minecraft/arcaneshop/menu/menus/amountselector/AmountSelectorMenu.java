@@ -10,6 +10,7 @@ import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.config.configs.AmountSelectorMenuConfig;
+import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import net.kyori.adventure.key.Key;
@@ -19,9 +20,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,6 +38,7 @@ public class AmountSelectorMenu {
     private final BukkitAudiences audiences = BukkitAudiences.create(JavaPlugin.getProvidingPlugin(ArcaneShop.class));
     private final MenuManager menuManager;
     private final ConfigManager configManager;
+    private final CustomItemManager customItemManager = new CustomItemManager();
 
     private void sell(@NotNull final Player player, @NotNull final ShopItem item, final int amount) {
         //player.getInventory().remove();
@@ -53,7 +57,8 @@ public class AmountSelectorMenu {
                 .disableAllInteractions()
                 .create();
 
-        final AtomicInteger amount = new AtomicInteger(item.itemStack().getAmount());
+        final AtomicInteger amount = new AtomicInteger(item.getAmount());
+
         final GuiAction<InventoryClickEvent> clickAction = (event) -> {
             final double cost = amount.get() * (buy ? item.getBuyPrice() : item.getSellPrice());
 
@@ -70,15 +75,24 @@ public class AmountSelectorMenu {
                     final BinaryTagHolder binaryTagHolder = BinaryTagHolder.binaryTagHolder(sNbt);
                     final HoverEvent<HoverEvent.ShowItem> hover = HoverEvent.showItem(key, amount.get(), binaryTagHolder);
 
-                    final Component message = Component.text("You have bought " + amount.get() + "x [", NamedTextColor.GREEN)
-                            .append(Component.text(item.displayItem().name()).hoverEvent(hover))
-                            .append(Component.text("] for " + String.format("%.2f", cost)));
+                    final Component message = Component.text("You have bought " + amount.get() + "x ", NamedTextColor.GREEN)
+                            .append(MiniMessage.miniMessage().deserialize(item.displayItem().name() + " (hover)").hoverEvent(hover))
+                            .append(Component.text(" for " + String.format("%.2f", cost)));
                     audiences.player(player).sendMessage(message);
+
+                    if (item.getItem().isCustom()) {
+                        customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).giveItems(player, item.getItem().getCustomItemProperties(), 1);
+                    } else {
+                        final ItemStack itemStack = item.getItem().item().clone();
+                        itemStack.setAmount(amount.get());
+                        player.getInventory().addItem(itemStack);
+                    }
+
                     menuManager.openShop(player, shop, page);
                     return;
                 }
 
-                player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.itemStack().getType(), cost));
+                player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.displayItem().item().getItemMeta().getDisplayName(), cost));
                 return;
             }
         };
@@ -91,14 +105,14 @@ public class AmountSelectorMenu {
                             if (buy) {
                                 lore.add(Component.text("Buy " + amt + " for $" + String.format("%.2f", item.getBuyPrice() * amt), NamedTextColor.RED).decoration(TextDecoration.ITALIC, false));
                             } else {
-                                lore.add(Component.text("Sell " + amt + " for $" + String.format("%.2f", item.getBuyPrice() * amt), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
+                                lore.add(Component.text("Sell " + amt + " for $" + String.format("%.2f", item.getSellPrice() * amt), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
                             }
                         })
                         .amount(amt)
                         .asGuiItem(clickAction)
         );
 
-        updateAmount.accept(item.itemStack().getAmount());
+        updateAmount.accept(item.getAmount());
 
         for (final Map.Entry<String, AmountSelectorButton> entry : config.getButtons().entrySet()) {
             final AmountSelectorButton button = entry.getValue();
@@ -122,8 +136,8 @@ public class AmountSelectorMenu {
 
                         switch (button.getAction()) {
                             case ADD: {
-                                if (amount.get() != item.itemStack().getType().getMaxStackSize()) {
-                                    amount.set(Math.min(item.itemStack().getType().getMaxStackSize(), amount.get() + button.getValue()));
+                                if (amount.get() != item.getItem().item().getMaxStackSize()) {
+                                    amount.set(Math.min(item.getItem().item().getMaxStackSize(), amount.get() + button.getValue()));
                                 }
 
                                 break;
@@ -131,7 +145,7 @@ public class AmountSelectorMenu {
 
                             case SET: {
                                 if (button.getValue() == -1) {
-                                    amount.set(item.itemStack().getType().getMaxStackSize());
+                                    amount.set(item.getItem().item().getMaxStackSize());
                                 } else {
                                     amount.set(Math.max(1, Math.min(button.getValue(), 64)));
                                 }

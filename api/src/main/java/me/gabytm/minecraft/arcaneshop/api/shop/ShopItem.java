@@ -1,14 +1,16 @@
 package me.gabytm.minecraft.arcaneshop.api.shop;
 
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface ShopItem {
 
     @NotNull DisplayItem displayItem();
 
-    @NotNull ItemStack itemStack();
+    @Nullable DisplayItem getItem();
+
+    int getAmount();
 
     int getSlot();
 

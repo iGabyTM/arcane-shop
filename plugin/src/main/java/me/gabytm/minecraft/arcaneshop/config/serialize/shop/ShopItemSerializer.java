@@ -25,15 +25,16 @@ public class ShopItemSerializer implements TypeSerializer<ShopItem> {
     @Override
     public ShopItem deserialize(Type type, ConfigurationNode node) throws SerializationException {
         final Pair<DisplayItem, Boolean> displayItem = itemCreator.createFromConfig(node.node("item"));
+        final int amount = node.node("amount").getInt(1);
         final int slot = node.node("slot").getInt();
         final int page = node.node("page").getInt(1);
         // If the item is invalid, set buy and sell price to 0 (invalid = pair.second() == false)
-        final double buyPrice = displayItem.second() ? node.node("buyPrice").getDouble() : 0.0d;
-        final double sellPrice = displayItem.second() ? node.node("sellPrice").getDouble() : 0.0d;
+        final double buyPrice = displayItem.second() ? node.node("buyPrice").getDouble() / amount : 0.0d;
+        final double sellPrice = displayItem.second() ? node.node("sellPrice").getDouble() / amount : 0.0d;
 
         final boolean acceptOnlyExactItems = node.node("acceptOnlyExactItems").getBoolean(true);
 
-        return new ShopItemImpl(displayItem.first(), displayItem.first().item(), slot, page, buyPrice, sellPrice, acceptOnlyExactItems);
+        return new ShopItemImpl(displayItem.first(), displayItem.first(), amount, slot, page, buyPrice, sellPrice, acceptOnlyExactItems);
     }
 
     @Override

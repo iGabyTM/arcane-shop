@@ -19,6 +19,9 @@ dependencies {
 
     // Economy
     compileOnly(libs.vaultapi)
+
+    // Custom items
+    compileOnly(libs.hdbapi)
 }
 
 tasks {

@@ -9,8 +9,10 @@ import me.gabytm.minecraft.arcaneshop.commands.ShopCommand;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.economy.EconomyManagerImpl;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
+import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import me.gabytm.minecraft.arcaneshop.shop.ShopManagerImpl;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,7 +22,8 @@ import java.io.File;
 public class ArcaneShop extends JavaPlugin {
 
     private ArcaneShopAPI api;
-    private ItemCreator itemCreator = new ItemCreator();
+    private CustomItemManager customItemManager;
+    private ItemCreator itemCreator;
     private ConfigManager configManager;
     private MenuManager menuManager;
 
@@ -33,15 +36,20 @@ public class ArcaneShop extends JavaPlugin {
     public void onEnable() {
         getDataFolder().mkdirs();
 
+        this.customItemManager = new CustomItemManager();
+        this.itemCreator = new ItemCreator(customItemManager);
+
         final EconomyManager economyManager = new EconomyManagerImpl();
         this.configManager = new ConfigManager(getDataFolder().toPath().toAbsolutePath(), itemCreator, economyManager);
 
         api = new ArcaneShopAPIImpl(economyManager, new ShopManagerImpl(new File(getDataFolder(), "shops")));
-        load();
         this.menuManager = new MenuManager(api.getShopManager(), configManager);
         registerCommands();
 
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);
+
+        // Load everything 3 seconds after startup to allow dependencies to load their stuff
+        Bukkit.getScheduler().runTaskLater(this, this::load, 3 * 20L);
     }
 
     public void load() {

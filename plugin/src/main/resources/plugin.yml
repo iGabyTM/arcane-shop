@@ -4,4 +4,7 @@ version: ${version}
 api-version: '1.13'
 
 softdepend:
+  # Economy
   - Vault
+  # Custom items
+  - HeadDatabase

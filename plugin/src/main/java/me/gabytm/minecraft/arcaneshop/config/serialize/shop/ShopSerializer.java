@@ -75,12 +75,6 @@ public class ShopSerializer implements TypeSerializer<Shop> {
             Logging.warning("No items in shop");
         }
 
-        /*final ShopSettings settings = node.node("settings").get(
-                ShopSettings.class,
-                (Supplier<ShopSettings>) () -> new ShopSettingsImpl(economyManager.getDefaultProvider(), mainConfig.getShopActions())
-        );
-        System.out.println("settings = " + settings);*/
-
         final String economyProviderName = node.node("economy").getString("");
         EconomyProvider economyProvider = economyManager.getProvider(economyProviderName);
 
