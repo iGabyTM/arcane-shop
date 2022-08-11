@@ -14,22 +14,22 @@ public class VaultEconomyProvider implements EconomyProvider {
     }
 
     @Override
-    public boolean has(Player player, double amount) {
+    public boolean has(@NotNull final Player player, double amount) {
         return economy.has(player, amount);
     }
 
     @Override
-    public boolean subtract(Player player, double amount) {
+    public boolean subtract(@NotNull final Player player, double amount) {
         return economy.withdrawPlayer(player, amount).transactionSuccess();
     }
 
     @Override
-    public boolean add(Player player, double amount) {
+    public boolean add(@NotNull final Player player, double amount) {
         return economy.depositPlayer(player, amount).transactionSuccess();
     }
 
     @Override
-    public double get(Player player) {
+    public double get(@NotNull final Player player) {
         return economy.getBalance(player);
     }
 
