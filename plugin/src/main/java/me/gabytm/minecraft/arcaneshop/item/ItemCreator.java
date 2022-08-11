@@ -14,6 +14,7 @@ import me.gabytm.minecraft.arcaneshop.item.head.HeadTextureManager;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
 import me.gabytm.minecraft.arcaneshop.util.Items;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
+import me.gabytm.minecraft.arcaneshop.util.Separator;
 import me.gabytm.minecraft.arcaneshop.util.ServerVersion;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -64,7 +65,7 @@ public class ItemCreator {
         Enchantment enchantment;
 
         if (ServerVersion.HAS_KEYS) {
-            final String[] key = parts[0].split(":", 2);
+            final String[] key = parts[0].split(Separator.COLON, 2);
 
             if (key.length == 2) {
                 enchantment = Enchantment.getByKey(new NamespacedKey(key[0], key[1]));
@@ -98,7 +99,7 @@ public class ItemCreator {
 
         final Map<@NotNull Enchantment, @NotNull Integer> enchantments =
                 node.node("enchantments").getList(String.class, Collections.emptyList()).stream()
-                        .map(it -> it.split(";")) // Enchantments are defined as Enchantment;Level
+                        .map(it -> it.split(Separator.SEMICOLON)) // Enchantments are defined as Enchantment;Level
                         .map(this::parseEnchantmentAndLevel)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -110,12 +111,15 @@ public class ItemCreator {
             builder.name(removeItalic(nameComponent));
         }
 
-        builder.lore(
-                        node.node("lore").getList(Component.class, Collections.emptyList()).stream()
-                                .map(this::removeItalic)
-                                .collect(Collectors.toList())
-                )
-                .flags(flags)
+        final List<Component> loreComponent = node.node("lore").getList(Component.class, Collections.emptyList()).stream()
+                .map(this::removeItalic)
+                .collect(Collectors.toList());
+
+        if (!loreComponent.isEmpty()) {
+            builder.lore(loreComponent);
+        }
+
+        builder.flags(flags)
                 .enchant(enchantments, true)
                 .unbreakable(node.node("unbreakable").getBoolean());
 
@@ -179,7 +183,7 @@ public class ItemCreator {
 
         if (Items.isPlayerHead(material, damage)) {
             // prefix;value
-            final String[] texture = node.node("texture").getString("").split(";", 2);
+            final String[] texture = node.node("texture").getString("").split(Separator.SEMICOLON, 2);
 
             if (texture.length == 2) {
                 final HeadTextureProvider provider = headTextureManager.getProvider(texture[0]);

@@ -2,8 +2,8 @@ package me.gabytm.minecraft.arcaneshop.item.custom.handlers;
 
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import me.arcaniax.hdb.api.HeadDatabaseAPI;
+import me.gabytm.minecraft.arcaneshop.api.item.custom.CustomItemHandler;
 import me.gabytm.minecraft.arcaneshop.api.util.collection.Pair;
-import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemHandlerImpl;
 import me.gabytm.minecraft.arcaneshop.util.Items;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import org.bukkit.entity.Player;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.spongepowered.configurate.ConfigurationNode;
 
-public class TestCustomItemHandler extends CustomItemHandlerImpl<TestCustomItemProperties> {
+public class TestCustomItemHandler implements CustomItemHandler<TestCustomItemProperties> {
 
     private final HeadDatabaseAPI api = new HeadDatabaseAPI();
 
