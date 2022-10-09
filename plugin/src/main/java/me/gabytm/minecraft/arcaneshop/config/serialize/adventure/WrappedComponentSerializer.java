@@ -3,6 +3,7 @@ package me.gabytm.minecraft.arcaneshop.config.serialize.adventure;
 import me.gabytm.minecraft.arcaneshop.api.util.adventure.WrappedComponent;
 import me.gabytm.minecraft.arcaneshop.util.adventure.WrappedComponentImpl;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.ConfigurationOptions;
@@ -15,9 +16,9 @@ public class WrappedComponentSerializer implements TypeSerializer<WrappedCompone
 
     @Override
     public WrappedComponent deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        final String string = node.getString("");
-        final Component component = node.get(Component.class, Component.empty());
-        return new WrappedComponentImpl(string, component);
+        final String raw = node.getString("");
+        final TextComponent component = (TextComponent) node.get(Component.class, Component.empty());
+        return new WrappedComponentImpl(raw, component.content(), component);
     }
 
     @Override
@@ -27,7 +28,7 @@ public class WrappedComponentSerializer implements TypeSerializer<WrappedCompone
 
     @Override
     public @Nullable WrappedComponent emptyValue(Type specificType, ConfigurationOptions options) {
-        return new WrappedComponentImpl("", Component.empty());
+        return new WrappedComponentImpl("", "", Component.empty());
     }
 
 }

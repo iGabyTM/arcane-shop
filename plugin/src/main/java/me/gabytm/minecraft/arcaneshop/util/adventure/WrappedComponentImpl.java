@@ -6,17 +6,27 @@ import org.jetbrains.annotations.NotNull;
 
 public class WrappedComponentImpl implements WrappedComponent {
 
-    private final String text;
+    private final String raw;
+    private final String content;
     private final Component component;
 
-    public WrappedComponentImpl(@NotNull final String text, @NotNull final Component component) {
-        this.text = text;
+    public WrappedComponentImpl(
+            @NotNull final String raw, @NotNull final String content,
+            @NotNull final Component component
+    ) {
+        this.raw = raw;
+        this.content = content;
         this.component = component;
     }
 
     @Override
-    public @NotNull String text() {
-        return text;
+    public @NotNull String raw() {
+        return raw;
+    }
+
+    @Override
+    public @NotNull String content() {
+        return content;
     }
 
     @Override
