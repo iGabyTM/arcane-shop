@@ -73,14 +73,14 @@ public class AmountSelectorMenu {
                                     .map(it -> Component.empty().decoration(TextDecoration.ITALIC, false).append(it))
                                     .forEach(lore::add);
                         })
-                        .amount(amt)
+                        .amount(Math.min(amt, item.displayItem().item().getMaxStackSize()))
                         .asGuiItem(clickAction)
         );
     }
 
     private void addButtons(
             @NotNull final Gui gui, @NotNull final AmountSelectorMenuConfig config,
-            @NotNull final ShopItem item, @NotNull final AtomicInteger amount,
+            @NotNull final ShopItem shopItem, @NotNull final AtomicInteger amount,
             @NotNull final IntConsumer updateAmount, final boolean buy
     ) {
         for (final Map.Entry<String, AmountSelectorButton> entry : config.getButtons().entrySet()) {
@@ -102,11 +102,12 @@ public class AmountSelectorMenu {
                     button.getSlot(),
                     new GuiItem(button.getDisplayItem().item(), event -> {
                         final int currentAmount = amount.get();
+                        final ItemStack itemStack = shopItem.getItem().item();
 
                         switch (button.getAction()) {
                             case ADD: {
-                                if (amount.get() != item.getItem().item().getMaxStackSize()) {
-                                    amount.set(Math.min(item.getItem().item().getMaxStackSize(), amount.get() + button.getValue()));
+                                if (amount.get() != itemStack.getMaxStackSize()) {
+                                    amount.set(Math.min(itemStack.getMaxStackSize(), amount.get() + button.getValue()));
                                 }
 
                                 break;
@@ -114,7 +115,7 @@ public class AmountSelectorMenu {
 
                             case SET: {
                                 if (button.getValue() == -1) {
-                                    amount.set(item.getItem().item().getMaxStackSize());
+                                    amount.set(itemStack.getMaxStackSize());
                                 } else {
                                     amount.set(Math.max(1, Math.min(button.getValue(), 64)));
                                 }
