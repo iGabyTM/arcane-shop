@@ -5,6 +5,8 @@ import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.api.util.adventure.WrappedComponent;
+import me.gabytm.minecraft.arcaneshop.util.adventure.WrappedComponentImpl;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -19,7 +21,7 @@ public class ShopImpl implements Shop {
     private final ItemStack mainMenuItem;
     private final int mainMenuSlot;
 
-    private final Component menuTitle;
+    private final WrappedComponent menuTitle;
     private final int menuRows;
 
     private final List<@NotNull ShopItem> items;
@@ -30,7 +32,7 @@ public class ShopImpl implements Shop {
 
     public ShopImpl(
             @NotNull final ItemStack mainMenuItem, @Range(from = 0, to = 54) final int mainMenuSlot,
-            @NotNull final Component menuTitle, @Range(from = 1, to = 6) final int menuRows,
+            @NotNull final WrappedComponent menuTitle, @Range(from = 1, to = 6) final int menuRows,
             @NotNull final List<@NotNull ShopItem> items, @NotNull final List<@NotNull ShopDecorationItem> displayItems,
             @NotNull final EconomyProvider economyProvider, @NotNull final Map<@NotNull ShopAction, @NotNull ClickType> shopActions
     ) {
@@ -57,7 +59,7 @@ public class ShopImpl implements Shop {
 
 
     @Override
-    public @NotNull Component getMenuTitle() {
+    public @NotNull WrappedComponent getMenuTitle() {
         return menuTitle;
     }
 

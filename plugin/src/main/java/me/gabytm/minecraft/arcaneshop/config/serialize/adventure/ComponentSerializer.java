@@ -1,4 +1,4 @@
-package me.gabytm.minecraft.arcaneshop.config.serialize;
+package me.gabytm.minecraft.arcaneshop.config.serialize.adventure;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;

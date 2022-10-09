@@ -7,6 +7,7 @@ import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.api.util.adventure.WrappedComponent;
 import me.gabytm.minecraft.arcaneshop.config.configs.MainConfig;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.shop.ShopImpl;
@@ -44,7 +45,7 @@ public class ShopSerializer implements TypeSerializer<Shop> {
         final int mainMenuSlot = node.node("mainMenu", "slot").getInt();
 
 
-        final Component menuTitle = node.node("menu", "title").get(Component.class, Component.empty());
+        final WrappedComponent menuTitle = node.node("menu", "title").get(WrappedComponent.class);
         int menuRows = node.node("menu", "rows").getInt(6);
 
         if (menuRows < 1 || menuRows > 6) {

@@ -6,20 +6,21 @@ import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
 import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
-import me.gabytm.minecraft.arcaneshop.api.shop.ShopSettings;
+import me.gabytm.minecraft.arcaneshop.api.util.adventure.WrappedComponent;
 import me.gabytm.minecraft.arcaneshop.config.configs.AmountSelectorMenuConfig;
 import me.gabytm.minecraft.arcaneshop.config.configs.ItemsConfig;
 import me.gabytm.minecraft.arcaneshop.config.configs.MainConfig;
-import me.gabytm.minecraft.arcaneshop.config.serialize.ComponentSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.adventure.ComponentSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.EconomyProviderSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.adventure.WrappedComponentSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.AmountSelectorButtonSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.DisplayItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.ShopDecorationItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopSerializer;
-import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopSettingsSerializer;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.menu.menus.amountselector.AmountSelectorButton;
+import me.gabytm.minecraft.arcaneshop.util.adventure.WrappedComponentImpl;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,6 +86,7 @@ public class ConfigManager {
                         options.shouldCopyDefaults(true)
                                 .serializers(serializers ->
                                         serializers
+                                                .register(WrappedComponent.class, new WrappedComponentSerializer())
                                                 .register(Component.class, ComponentSerializer.INSTANCE)
                                                 .register(DisplayItem.class, new DisplayItemSerializer(itemCreator))
                                                 .register(EconomyProvider.class, new EconomyProviderSerializer(economyManager))

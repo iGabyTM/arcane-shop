@@ -2,6 +2,7 @@ package me.gabytm.minecraft.arcaneshop.api.shop;
 
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyProvider;
 import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
+import me.gabytm.minecraft.arcaneshop.api.util.adventure.WrappedComponent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,7 @@ public interface Shop {
     int getMainMenuSlot();
 
 
-    @NotNull Component getMenuTitle();
+    @NotNull WrappedComponent getMenuTitle();
 
     int getMenuRows();
 
