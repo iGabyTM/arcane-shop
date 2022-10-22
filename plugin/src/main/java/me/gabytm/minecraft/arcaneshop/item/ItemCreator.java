@@ -165,15 +165,21 @@ public class ItemCreator {
         final ItemStack itemStack = new ItemStack(material, amount, damage);
         final ConfigurationNode customNode = node.node("custom");
 
+        // The item is custom (e.g. a head from HeadDatabase)
         if (!customNode.empty()) {
             final String customItemHandlerId = customNode.node("type").getString();
 
+            // The type is specified
             if (customItemHandlerId != null) {
                 final CustomItemHandler<?> customItemHandler = customItemManager.getHandler(customItemHandlerId);
 
+                // A handler with the provided name is registered
                 if (customItemHandler != null) {
+                    // Create the custom item
                     final Pair<ItemStack, ? extends CustomItemProperties> pair = customItemHandler.createItem(itemStack, customNode);
+                    // Apply the general meta (e.g. name, lore)
                     final DisplayItem displayItem = setMeta(node, ItemBuilder.from(pair.first()));
+                    // Return the custom item
                     return Pair.of(new DisplayItemImpl(displayItem.item(), displayItem.name(), displayItem.lore(), true, customItemHandlerId, pair.second()), true);
                 }
             }
@@ -185,9 +191,11 @@ public class ItemCreator {
             // prefix;value
             final String[] texture = node.node("texture").getString("").split(Separator.SEMICOLON, 2);
 
+            // The texture is not a base64 string
             if (texture.length == 2) {
                 final HeadTextureProvider provider = headTextureManager.getProvider(texture[0]);
 
+                // A provider with the given id was found
                 if (provider != null) {
                     itemBuilder = ItemBuilder.skull(provider.applyTexture(texture[1]));
                 }
