@@ -50,16 +50,16 @@ public class ShopMenu {
             final GuiItem guiItem = ItemBuilder.from(item.displayItem().item().clone())
                     .amount(item.getAmount())
                     .lore(lore -> {
-                        if (item.getSellPrice() != 0.0d) {
+                        if (item.canBeSold()) {
                             lore.add(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
                         }
 
-                        if (item.getBuyPrice() != 0.0d) {
+                        if (item.canBeBought()) {
                             lore.add(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED).decoration(TextDecoration.ITALIC, false));
                         }
                     })
                     .asGuiItem(event -> {
-                        if (item.getSellPrice() != 0.0d && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
+                        if (item.canBeSold() && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
                             if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it != null && it.getType() == item.getItem().item().getType())) {
                                 player.sendMessage(ChatColor.RED + "You don't have any " + item.displayItem().item().getItemMeta().hasDisplayName() + " in your inventory");
                                 return;
@@ -69,7 +69,7 @@ public class ShopMenu {
                             return;
                         }
 
-                        if (item.getBuyPrice() != 0.0d && shop.getShopActions().get(ShopAction.BUY) == event.getClick()) {
+                        if (item.canBeBought() && shop.getShopActions().get(ShopAction.BUY) == event.getClick()) {
                             if (player.getInventory().firstEmpty() == -1) {
                                 player.sendMessage(ChatColor.RED + "Your inventory is full!");
                                 return;

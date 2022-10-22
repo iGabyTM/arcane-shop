@@ -20,6 +20,14 @@ public interface ShopItem {
 
     double getSellPrice();
 
+    default boolean canBeBought() {
+        return getBuyPrice() > 0.0d;
+    }
+
+    default boolean canBeSold() {
+        return getSellPrice() > 0.0d;
+    }
+
     boolean acceptOnlyExactItems();
 
 }
