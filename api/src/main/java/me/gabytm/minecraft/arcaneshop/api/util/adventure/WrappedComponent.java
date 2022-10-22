@@ -2,6 +2,7 @@ package me.gabytm.minecraft.arcaneshop.api.util.adventure;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 public interface WrappedComponent {
@@ -21,6 +22,7 @@ public interface WrappedComponent {
      */
     @NotNull String content();
 
+    @ApiStatus.Internal
     @NotNull Component component();
 
 }
