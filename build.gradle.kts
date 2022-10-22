@@ -11,8 +11,8 @@ subprojects {
     apply(plugin = "java")
     apply(plugin = "version-catalog")
 
-    this.group = group
-    this.version = version
+    project.group = parent?.group!!
+    project.version = parent?.version!!
 
     repositories {
         mavenCentral()

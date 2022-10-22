@@ -15,8 +15,6 @@ dependencies {
     implementation(libs.bundles.triumph)
     implementation("de.tr7zw:item-nbt-api-plugin:2.10.0")
 
-    compileOnly(libs.jetbrains.annotations)
-
     // Economy
     compileOnly(libs.vaultapi)
 
