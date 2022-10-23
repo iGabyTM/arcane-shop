@@ -2,9 +2,12 @@ package me.gabytm.minecraft.arcaneshop.economy;
 
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyProvider;
+import me.gabytm.minecraft.arcaneshop.economy.providers.ExperienceEconomyProvider;
 import me.gabytm.minecraft.arcaneshop.economy.providers.VaultEconomyProvider;
+import me.gabytm.minecraft.arcaneshop.util.Logging;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +20,22 @@ public class EconomyManagerImpl implements EconomyManager {
     private EconomyProvider defaultProvider;
 
     public EconomyManagerImpl() {
-        register("vault", new VaultEconomyProvider(Bukkit.getServicesManager().getRegistration(Economy.class).getProvider()));
+        final EconomyProvider experience = new ExperienceEconomyProvider();
+        register("experience", experience);
+
+        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
+            final RegisteredServiceProvider<Economy> economy = Bukkit.getServicesManager().getRegistration(Economy.class);
+
+            if (economy == null) {
+                setDefaultProvider(experience);
+                Logging.warning("Could not hook into vault, using 'experience' as default economy");
+            } else {
+                final EconomyProvider vault = new VaultEconomyProvider(economy.getProvider());
+                register("vault", vault);
+                setDefaultProvider(vault);
+                Logging.info("Hooked into vault, using it as default economy");
+            }
+        }
     }
 
     @Override
