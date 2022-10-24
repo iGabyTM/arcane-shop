@@ -102,7 +102,7 @@ public class DisplayItemSerializer implements TypeSerializer<DisplayItem> {
             return;
         }
 
-        final ItemStack item = obj.item();
+        final ItemStack item = obj.getItemStack();
         node.node("material").set(item.getType().name());
 
         //noinspection deprecation

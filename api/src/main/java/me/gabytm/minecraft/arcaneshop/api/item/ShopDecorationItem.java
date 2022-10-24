@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface ShopDecorationItem {
 
+    int ALL_PAGES = -1;
+
     @NotNull DisplayItem getDisplayItem();
 
     @NotNull List<@NotNull Integer> getSlots();

@@ -34,7 +34,7 @@ public class ShopItemImpl implements ShopItem {
     }
 
     @Override
-    public @NotNull DisplayItem displayItem() {
+    public @NotNull DisplayItem getDisplayItem() {
         return displayItem;
     }
 

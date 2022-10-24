@@ -48,7 +48,7 @@ public class ShopManagerImpl implements ShopManager {
         final EconomyProvider economyProvider = shop.getEconomyProvider();
 
         if (!economyProvider.has(player, price)) {
-            player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount, item.displayItem().item().getItemMeta().getDisplayName(), price));
+            player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount, item.getDisplayItem().getItemStack().getItemMeta().getDisplayName(), price));
             return false;
         }
 
@@ -60,12 +60,12 @@ public class ShopManagerImpl implements ShopManager {
         if (item.getItem().isCustom()) {
             customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).giveItems(player, item.getItem().getCustomItemProperties(), amount);
         } else {
-            final ItemStack itemStack = item.getItem().item().clone();
+            final ItemStack itemStack = item.getItem().getItemStack().clone();
             itemStack.setAmount(amount);
             player.getInventory().addItem(itemStack);
         }
 
-        player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount, item.displayItem().item().getType(), price));
+        player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount, item.getDisplayItem().getItemStack().getType(), price));
         return true;
     }
 

@@ -180,7 +180,7 @@ public class ItemCreator {
                     // Apply the general meta (e.g. name, lore)
                     final DisplayItem displayItem = setMeta(node, ItemBuilder.from(pair.first()));
                     // Return the custom item
-                    return Pair.of(new DisplayItemImpl(displayItem.item(), displayItem.name(), displayItem.lore(), true, customItemHandlerId, pair.second()), true);
+                    return Pair.of(new DisplayItemImpl(displayItem.getItemStack(), displayItem.name(), displayItem.lore(), true, customItemHandlerId, pair.second()), true);
                 }
             }
         }

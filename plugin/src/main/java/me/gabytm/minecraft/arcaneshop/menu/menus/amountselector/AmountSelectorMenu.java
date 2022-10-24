@@ -1,6 +1,5 @@
 package me.gabytm.minecraft.arcaneshop.menu.menus.amountselector;
 
-import de.tr7zw.nbtapi.NBTItem;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.components.GuiAction;
 import dev.triumphteam.gui.guis.Gui;
@@ -14,17 +13,13 @@ import me.gabytm.minecraft.arcaneshop.config.configs.AmountSelectorMenuConfig;
 import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -72,7 +67,7 @@ public class AmountSelectorMenu {
             final boolean buy
     ) {
         return (amt) -> {
-            final ItemStack itemStack = item.displayItem().item();
+            final ItemStack itemStack = item.getDisplayItem().getItemStack();
             final GuiItem newGuiItem = ItemBuilder.from(itemStack.clone())
                     .lore(lore -> {
                         if (config.getLore().isEmpty()) {
@@ -130,9 +125,9 @@ public class AmountSelectorMenu {
 
             gui.setItem(
                     button.getSlot(),
-                    new GuiItem(button.getDisplayItem().item(), event -> {
+                    new GuiItem(button.getDisplayItem().getItemStack(), event -> {
                         final int currentAmount = amount.get();
-                        final ItemStack itemStack = shopItem.getItem().item();
+                        final ItemStack itemStack = shopItem.getItem().getItemStack();
                         final int value = button.valueIsMax() ? itemStack.getMaxStackSize() : button.getValue();
 
                         switch (button.getAction()) {

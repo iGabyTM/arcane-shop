@@ -35,7 +35,7 @@ public class DisplayItemImpl implements DisplayItem {
     }
 
     @Override
-    public @NotNull ItemStack item() {
+    public @NotNull ItemStack getItemStack() {
         return item;
     }
 

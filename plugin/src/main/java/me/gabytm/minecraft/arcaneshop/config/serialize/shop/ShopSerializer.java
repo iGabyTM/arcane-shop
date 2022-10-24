@@ -13,7 +13,6 @@ import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.shop.ShopImpl;
 import me.gabytm.minecraft.arcaneshop.util.Enums;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
-import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.ClickType;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -116,7 +115,7 @@ public class ShopSerializer implements TypeSerializer<Shop> {
 
         // Add the missing ShopActions from the main config
         mainConfig.getShopActions().forEach(actions::putIfAbsent);
-        return new ShopImpl(mainMenuItem.item(), mainMenuSlot, menuTitle, menuRows, shopItems, decorationItems, economyProvider, actions);
+        return new ShopImpl(mainMenuItem.getItemStack(), mainMenuSlot, menuTitle, menuRows, shopItems, decorationItems, economyProvider, actions);
     }
 
     @Override

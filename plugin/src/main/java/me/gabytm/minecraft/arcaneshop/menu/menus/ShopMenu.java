@@ -3,6 +3,7 @@ package me.gabytm.minecraft.arcaneshop.menu.menus;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
+import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
@@ -43,11 +44,11 @@ public class ShopMenu {
                 .create();
 
         shop.getDecorations().stream()
-                .filter(it -> it.getPage() == -1 || it.getPage() == page)
-                .forEach(item -> gui.setItem(item.getSlots(), new GuiItem(item.getDisplayItem().item())));
+                .filter(it -> it.getPage() == ShopDecorationItem.ALL_PAGES || it.getPage() == page)
+                .forEach(item -> gui.setItem(item.getSlots(), new GuiItem(item.getDisplayItem().getItemStack())));
 
         for (final ShopItem item : items) {
-            final GuiItem guiItem = ItemBuilder.from(item.displayItem().item().clone())
+            final GuiItem guiItem = ItemBuilder.from(item.getDisplayItem().getItemStack().clone())
                     .amount(item.getAmount())
                     .lore(lore -> {
                         if (item.canBeSold()) {
@@ -60,8 +61,8 @@ public class ShopMenu {
                     })
                     .asGuiItem(event -> {
                         if (item.canBeSold() && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
-                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it != null && it.getType() == item.getItem().item().getType())) {
-                                player.sendMessage(ChatColor.RED + "You don't have any " + item.displayItem().item().getItemMeta().hasDisplayName() + " in your inventory");
+                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it != null && it.getType() == item.getItem().getItemStack().getType())) {
+                                player.sendMessage(ChatColor.RED + "You don't have any " + item.getDisplayItem().getItemStack().getItemMeta().hasDisplayName() + " in your inventory");
                                 return;
                             }
 
@@ -78,7 +79,7 @@ public class ShopMenu {
                             if (shop.getEconomyProvider().has(player, item.getBuyPrice())) {
                                 menuManager.openAmountSelectorForBuy(item, player, shop, page);
                             } else {
-                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.displayItem().item().getItemMeta().hasDisplayName());
+                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.getDisplayItem().getItemStack().getItemMeta().hasDisplayName());
                             }
                         }
                     });
