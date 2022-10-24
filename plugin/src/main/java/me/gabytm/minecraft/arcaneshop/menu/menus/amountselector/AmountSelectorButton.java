@@ -1,17 +1,23 @@
 package me.gabytm.minecraft.arcaneshop.menu.menus.amountselector;
 
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class AmountSelectorButton {
 
+    /**
+     * @see ItemStack#getMaxStackSize()
+     */
+    public static final int MAX = -1;
+
     private final DisplayItem displayItem;
-    private final AmountAction action;
+    private final AmountSelectionAction action;
     private final int value;
     private final int slot;
 
     public AmountSelectorButton(
-            @NotNull final DisplayItem displayItem, @NotNull final AmountAction action,
+            @NotNull final DisplayItem displayItem, @NotNull final AmountSelectionAction action,
             final int value, final int slot
     ) {
         this.displayItem = displayItem;
@@ -24,7 +30,7 @@ public class AmountSelectorButton {
         return displayItem;
     }
 
-    public AmountAction getAction() {
+    public AmountSelectionAction getAction() {
         return action;
     }
 
@@ -34,6 +40,10 @@ public class AmountSelectorButton {
 
     public int getSlot() {
         return slot;
+    }
+
+    public boolean valueIsMax() {
+        return getValue() == MAX;
     }
 
 }

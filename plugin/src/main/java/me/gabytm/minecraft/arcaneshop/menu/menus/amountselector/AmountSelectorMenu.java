@@ -51,33 +51,58 @@ public class AmountSelectorMenu {
         this.configManager = configManager;
     }
 
+    /**
+     * Create the action that is run after the amount is changed
+     *
+     * @param gui         an instance of the gui
+     * @param config      the config of the menu
+     * @param item        the item that is sold/bought
+     * @param clickAction the action run to sell/buy the item
+     * @param buy         whether the item is bought
+     * @return an {@link IntConsumer} which accepts the current amount
+     */
     private @NotNull IntConsumer createUpdateAmountAction(
             @NotNull final Gui gui, @NotNull final AmountSelectorMenuConfig.Item config,
-            @NotNull final ShopItem item, @NotNull final AtomicInteger amount,
-            @NotNull final GuiAction<InventoryClickEvent> clickAction, final boolean buy
+            @NotNull final ShopItem item, @NotNull final GuiAction<InventoryClickEvent> clickAction,
+            final boolean buy
     ) {
-        return (amt) -> gui.updateItem(
-                config.getSlot(),
-                ItemBuilder.from(item.displayItem().item().clone())
-                        .lore(lore -> {
-                            if (config.getLore().isEmpty()) {
-                                return;
-                            }
+        return (amt) -> {
+            final ItemStack itemStack = item.displayItem().item();
+            final GuiItem newGuiItem = ItemBuilder.from(itemStack.clone())
+                    .lore(lore -> {
+                        if (config.getLore().isEmpty()) {
+                            return;
+                        }
 
-                            final double price = (buy ? item.getBuyPrice() : item.getSellPrice()) * amt;
-                            final TagResolver amountPlaceholder = Placeholder.component("amount", Component.text(amt));
-                            final TagResolver pricePlaceholder = Placeholder.component("price", Component.text(String.format("%.2f", price)));
+                        final double price = (buy ? item.getBuyPrice() : item.getSellPrice()) * amt;
+                        final TagResolver amountPlaceholder = Placeholder.component("amount", Component.text(amt));
+                        final TagResolver pricePlaceholder = Placeholder.component("price", Component.text(String.format("%.2f", price)));
 
-                            config.getLore().stream()
-                                    .map(it -> MiniMessage.miniMessage().deserialize(it, amountPlaceholder, pricePlaceholder))
-                                    .map(it -> Component.empty().decoration(TextDecoration.ITALIC, false).append(it))
-                                    .forEach(lore::add);
-                        })
-                        .amount(Math.min(amt, item.displayItem().item().getMaxStackSize()))
-                        .asGuiItem(clickAction)
-        );
+                        config.getLore()
+                                .stream()
+                                .map(it -> MiniMessage.miniMessage().deserialize(it, amountPlaceholder, pricePlaceholder))
+                                .map(it -> Component.empty().decoration(TextDecoration.ITALIC, false).append(it))
+                                .forEach(lore::add);
+                    })
+                    .amount(Math.min(amt, itemStack.getMaxStackSize()))
+                    .asGuiItem(clickAction);
+
+            // Set the new item in gui to update it visually
+            gui.updateItem(config.getSlot(), newGuiItem);
+        };
     }
 
+    /**
+     * Add all {@link AmountSelectorButton buttons} to the gui
+     *
+     * @param gui          an instance of the gui
+     * @param config       the config of the menu
+     * @param shopItem     the shop item that is sold/bought
+     * @param amount       amount
+     * @param updateAmount action to run after the amount was modified,
+     *                     created by {@linkplain #createUpdateAmountAction(Gui, AmountSelectorMenuConfig.Item, ShopItem, GuiAction, boolean)}
+     * @param buy          whether the item is bought
+     */
     private void addButtons(
             @NotNull final Gui gui, @NotNull final AmountSelectorMenuConfig config,
             @NotNull final ShopItem shopItem, @NotNull final AtomicInteger amount,
@@ -103,35 +128,30 @@ public class AmountSelectorMenu {
                     new GuiItem(button.getDisplayItem().item(), event -> {
                         final int currentAmount = amount.get();
                         final ItemStack itemStack = shopItem.getItem().item();
+                        final int value = button.valueIsMax() ? itemStack.getMaxStackSize() : button.getValue();
 
                         switch (button.getAction()) {
                             case ADD: {
-                                if (amount.get() != itemStack.getMaxStackSize()) {
-                                    amount.set(Math.min(itemStack.getMaxStackSize(), amount.get() + button.getValue()));
-                                }
-
+                                amount.addAndGet(value);
                                 break;
                             }
 
                             case SET: {
-                                if (button.getValue() == -1) {
-                                    amount.set(itemStack.getMaxStackSize());
-                                } else {
-                                    amount.set(Math.max(1, Math.min(button.getValue(), 64)));
-                                }
-
+                                amount.set(value);
                                 break;
                             }
 
                             case SUBTRACT: {
-                                if (amount.get() != 1) {
-                                    amount.set(Math.max(1, amount.get() - button.getValue()));
+                                // Subtract the 'value' from the current amount only if the current amount is more than 1
+                                if (amount.get() > 1) {
+                                    amount.set(Math.max(1, amount.get() - value));
                                 }
 
                                 break;
                             }
                         }
 
+                        // Update the item only if the amount was changed
                         if (amount.get() != currentAmount) {
                             updateAmount.accept(amount.get());
                         }
@@ -140,7 +160,11 @@ public class AmountSelectorMenu {
         }
     }
 
-    public void open(@NotNull final ShopItem item, @NotNull final Player player, @NotNull final Shop shop, final int page, final boolean buy) {
+    public void open(
+            @NotNull final ShopItem item, @NotNull final Player player,
+            @NotNull final Shop shop, final int page,
+            final boolean buy
+    ) {
         final AmountSelectorMenuConfig config = buy ? configManager.getBuyAmountSelectorMenuConfig() : configManager.getSellAmountSelectorMenuConfig();
         final Gui gui = Gui.gui()
                 .title(config.getTitle())
@@ -202,11 +226,12 @@ public class AmountSelectorMenu {
 
             menuManager.openShop(player, shop, page);
         };
-        final IntConsumer updateAmount = createUpdateAmountAction(gui, config.item(), item, amount, clickAction, buy);
+        final IntConsumer updateAmount = createUpdateAmountAction(gui, config.item(), item, clickAction, buy);
+        updateAmount.accept(item.getAmount()); // Set the current amount
 
-        updateAmount.accept(item.getAmount());
         addButtons(gui, config, item, amount, updateAmount, buy);
 
+        // TODO: 24/10/2022 remove this hardcoded item 
         gui.setItem(
                 5, 5,
                 ItemBuilder.skull()

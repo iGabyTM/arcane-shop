@@ -1,6 +1,6 @@
 package me.gabytm.minecraft.arcaneshop.menu.menus.amountselector;
 
-public enum AmountAction {
+public enum AmountSelectionAction {
 
     ADD,
     SET,

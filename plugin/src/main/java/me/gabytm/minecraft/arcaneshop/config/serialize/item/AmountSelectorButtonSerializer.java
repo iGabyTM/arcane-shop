@@ -1,7 +1,7 @@
 package me.gabytm.minecraft.arcaneshop.config.serialize.item;
 
 import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
-import me.gabytm.minecraft.arcaneshop.menu.menus.amountselector.AmountAction;
+import me.gabytm.minecraft.arcaneshop.menu.menus.amountselector.AmountSelectionAction;
 import me.gabytm.minecraft.arcaneshop.menu.menus.amountselector.AmountSelectorButton;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -16,8 +16,8 @@ public class AmountSelectorButtonSerializer implements TypeSerializer<AmountSele
     @Override
     public AmountSelectorButton deserialize(Type type, ConfigurationNode node) throws SerializationException {
         final DisplayItem displayItem = node.node("item").get(DisplayItem.class);
-        final AmountAction amountAction = node.node("action").get(AmountAction.class);
-        final int value = node.node("value").getInt(1);
+        final AmountSelectionAction amountAction = node.node("action").get(AmountSelectionAction.class);
+        final int value = node.node("value").getInt(AmountSelectorButton.MAX);
         final int slot = node.node("slot").getInt();
 
         if (displayItem == null || amountAction == null) {
