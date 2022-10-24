@@ -8,6 +8,7 @@ import dev.triumphteam.gui.guis.GuiItem;
 import me.gabytm.minecraft.arcaneshop.ArcaneShop;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.config.configs.AmountSelectorMenuConfig;
 import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
@@ -40,15 +41,19 @@ public class AmountSelectorMenu {
     private final BukkitAudiences audiences = BukkitAudiences.create(JavaPlugin.getProvidingPlugin(ArcaneShop.class));
     private final MenuManager menuManager;
     private final ConfigManager configManager;
+    private final ShopManager shopManager;
     private final CustomItemManager customItemManager = new CustomItemManager();
 
     private void sell(@NotNull final Player player, @NotNull final ShopItem item, final int amount) {
         //player.getInventory().remove();
     }
 
-    public AmountSelectorMenu(@NotNull final MenuManager menuManager, @NotNull final ConfigManager configManager) {
+    public AmountSelectorMenu(
+            @NotNull final MenuManager menuManager, @NotNull final ConfigManager configManager,
+            @NotNull final ShopManager shopManager) {
         this.menuManager = menuManager;
         this.configManager = configManager;
+        this.shopManager = shopManager;
     }
 
     /**
@@ -178,6 +183,16 @@ public class AmountSelectorMenu {
             final double cost = amount.get() * (buy ? item.getBuyPrice() : item.getSellPrice());
 
             if (buy) {
+                if (shopManager.buyItem(shop, item, amount.get(), player)) {
+                    menuManager.openShop(player, shop, page);
+                }
+            } else {
+                if (shopManager.sellItem(shop, item, amount.get(), player)) {
+                    menuManager.openShop(player, shop, page);
+                }
+            }
+
+            /*if (buy) {
                 if (shop.getEconomyProvider().has(player, cost)) {
                     if (!shop.getEconomyProvider().subtract(player, cost)) {
                         player.sendMessage("Something went wrong while subtracting " + String.format("%.2f", cost) + " from your account");
@@ -209,9 +224,9 @@ public class AmountSelectorMenu {
 
                 player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.displayItem().item().getItemMeta().getDisplayName(), cost));
                 return;
-            }
+            }*/
 
-            final int itemsTaken = customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).takeItems(player, item.getItem().getCustomItemProperties(), amount.get());
+            /*final int itemsTaken = customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).takeItems(player, item.getItem().getCustomItemProperties(), amount.get());
 
             if (itemsTaken == 0) {
                 player.sendMessage(ChatColor.RED + "You don't have any " + item.displayItem().item().getItemMeta().getDisplayName() + " in your inventory!");
@@ -224,14 +239,14 @@ public class AmountSelectorMenu {
                 player.sendMessage(ChatColor.YELLOW + String.format("You sold only %dx %s for %.2f", itemsTaken, item.displayItem().item().getItemMeta().getDisplayName(), moneyToGive));
             }
 
-            menuManager.openShop(player, shop, page);
+            menuManager.openShop(player, shop, page);*/
         };
         final IntConsumer updateAmount = createUpdateAmountAction(gui, config.item(), item, clickAction, buy);
         updateAmount.accept(item.getAmount()); // Set the current amount
 
         addButtons(gui, config, item, amount, updateAmount, buy);
 
-        // TODO: 24/10/2022 remove this hardcoded item 
+        // TODO: 24/10/2022 remove this hardcoded item
         gui.setItem(
                 5, 5,
                 ItemBuilder.skull()

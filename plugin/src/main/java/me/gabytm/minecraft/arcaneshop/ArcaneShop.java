@@ -4,6 +4,7 @@ import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPI;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPIImpl;
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.commands.ReloadCommand;
 import me.gabytm.minecraft.arcaneshop.commands.ShopCommand;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
@@ -41,11 +42,15 @@ public class ArcaneShop extends JavaPlugin {
 
         final EconomyManager economyManager = new EconomyManagerImpl();
         this.configManager = new ConfigManager(getDataFolder().toPath().toAbsolutePath(), itemCreator, economyManager);
+        final ShopManager shopManager = new ShopManagerImpl(
+                new File(getDataFolder(), "shops"),
+                customItemManager
+        );
 
-        api = new ArcaneShopAPIImpl(economyManager, new ShopManagerImpl(new File(getDataFolder(), "shops")));
-        this.menuManager = new MenuManager(api.getShopManager(), configManager);
+        api = new ArcaneShopAPIImpl(economyManager, shopManager);
+        this.menuManager = new MenuManager(api.getShopManager(), configManager, customItemManager);
+
         registerCommands();
-
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);
 
         // Load everything 3 seconds after startup to allow dependencies to load their stuff

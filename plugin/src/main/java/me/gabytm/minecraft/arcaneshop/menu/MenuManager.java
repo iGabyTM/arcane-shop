@@ -4,6 +4,7 @@ import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
+import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.menu.menus.amountselector.AmountSelectorMenu;
 import me.gabytm.minecraft.arcaneshop.menu.menus.MainMenu;
 import me.gabytm.minecraft.arcaneshop.menu.menus.ShopMenu;
@@ -16,8 +17,11 @@ public class MenuManager {
     private final MainMenu mainMenu;
     private final ShopMenu shopMenu = new ShopMenu(this);
 
-    public MenuManager(@NotNull final ShopManager shopManager, @NotNull final ConfigManager configManager) {
-        this.amountSelectorMenu = new AmountSelectorMenu(this, configManager);
+    public MenuManager(
+            @NotNull final ShopManager shopManager, @NotNull final ConfigManager configManager,
+            @NotNull final CustomItemManager customItemManager
+    ) {
+        this.amountSelectorMenu = new AmountSelectorMenu(this, configManager, shopManager);
         this.mainMenu = new MainMenu(this, shopManager);
     }
 

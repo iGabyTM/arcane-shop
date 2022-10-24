@@ -1,10 +1,16 @@
 package me.gabytm.minecraft.arcaneshop.shop;
 
 import com.google.common.collect.ImmutableMap;
+import me.gabytm.minecraft.arcaneshop.api.economy.EconomyProvider;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
+import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
@@ -19,97 +25,12 @@ public class ShopManagerImpl implements ShopManager {
     private final Map<String, Shop> shops = new HashMap<>();
 
     private final File shopsFolder;
+    private final CustomItemManager customItemManager;
 
-    public ShopManagerImpl(File shopsFolderPath) {
+    public ShopManagerImpl(@NotNull final File shopsFolderPath, @NotNull final CustomItemManager customItemManager) {
         this.shopsFolder = shopsFolderPath;
+        this.customItemManager = customItemManager;
     }
-
-    /*private final EconomyManager economyManager;
-    private final ConfigManager configManager;
-
-    public ShopManagerImpl(@NotNull final EconomyManager economyManager, @NotNull final ConfigManager configManager) {
-        this.economyManager = economyManager;
-        this.configManager = configManager;*/
-
-        /*final ShopSettings settings = new ShopSettingsImpl(
-                economyManager.getProvider("vault"),
-                ImmutableMap.<ShopAction, ClickType>builder()
-                        .put(ShopAction.SELL, ClickType.LEFT)
-                        .put(ShopAction.SELL_ALL, ClickType.SHIFT_LEFT)
-                        .put(ShopAction.BUY, ClickType.RIGHT)
-                        .put(ShopAction.BUY_MULTIPLE, ClickType.SHIFT_RIGHT)
-                        .build()
-        );
-
-        final Shop blocks = new ShopImpl(
-                new ItemStack(Material.BRICKS),
-                Component.text("Blocks"),
-                0,
-                Arrays.asList(
-                        new ShopItemImpl(
-                                new DisplayItemImpl(new ItemStack(Material.STONE), "", Collections.emptyList()),
-                                new ItemStack(Material.STONE),
-                                0,
-                                1,
-                                1.0,
-                                0.5
-                        ),
-                        new ShopItemImpl(
-                                new DisplayItemImpl(new ItemStack(Material.DIRT), "", Collections.emptyList()),
-                                new ItemStack(Material.DIRT),
-                                1,
-                                1,
-                                1.0,
-                                0.5
-                        ),
-                        new ShopItemImpl(
-                                new DisplayItemImpl(new ItemStack(Material.BRICKS), "", Collections.emptyList()),
-                                new ItemStack(Material.BRICKS),
-                                2,
-                                2,
-                                5,
-                                2
-                        ),
-                        new ShopItemImpl(
-                                new DisplayItemImpl(new ItemStack(Material.OBSIDIAN), "", Collections.emptyList()),
-                                new ItemStack(Material.OBSIDIAN),
-                                3,
-                                3,
-                                5,
-                                2
-                        )
-                ),
-                settings
-        );
-
-        final Shop ores = new ShopImpl(
-                new ItemStack(Material.DIAMOND),
-                Component.text("Ores"),
-                1,
-                Arrays.asList(
-                        new ShopItemImpl(
-                                new DisplayItemImpl(new ItemStack(Material.DIAMOND), "", Collections.emptyList()),
-                                new ItemStack(Material.DIAMOND),
-                                0,
-                                1,
-                                100,
-                                25
-                        ),
-                        new ShopItemImpl(
-                                new DisplayItemImpl(new ItemStack(Material.EMERALD), "", Collections.emptyList()),
-                                new ItemStack(Material.EMERALD),
-                                1,
-                                1,
-                                100,
-                                25
-                        )
-                ),
-                settings
-        );
-
-        shops.put("blocks", blocks);
-        shops.put("ores", ores);*/
-    //}
 
     @Override
     public @Nullable Shop getShop(@NotNull final String name) {
@@ -119,6 +40,39 @@ public class ShopManagerImpl implements ShopManager {
     @Override
     public @NotNull Map<String, Shop> getShops() {
         return ImmutableMap.copyOf(shops);
+    }
+
+    @Override
+    public boolean buyItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
+        final double price = amount * item.getBuyPrice();
+        final EconomyProvider economyProvider = shop.getEconomyProvider();
+
+        if (!economyProvider.has(player, price)) {
+            player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount, item.displayItem().item().getItemMeta().getDisplayName(), price));
+            return false;
+        }
+
+        if (!economyProvider.subtract(player, price)) {
+            player.sendMessage("Something went wrong while subtracting " + String.format("%.2f", price) + " from your account");
+            return false;
+        }
+
+        if (item.getItem().isCustom()) {
+            customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).giveItems(player, item.getItem().getCustomItemProperties(), amount);
+        } else {
+            final ItemStack itemStack = item.getItem().item().clone();
+            itemStack.setAmount(amount);
+            player.getInventory().addItem(itemStack);
+        }
+
+        player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount, item.displayItem().item().getType(), price));
+        return true;
+    }
+
+    @Override
+    public boolean sellItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
+        // TODO: 24/10/2022 implement sell 
+        return true;
     }
 
     public void loadShops(@NotNull final ConfigManager configManager) {
