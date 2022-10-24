@@ -12,6 +12,8 @@ import org.spongepowered.configurate.serialize.SerializationException;
 import org.spongepowered.configurate.serialize.TypeSerializer;
 
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
 
 public class ShopItemSerializer implements TypeSerializer<ShopItem> {
 
@@ -24,17 +26,35 @@ public class ShopItemSerializer implements TypeSerializer<ShopItem> {
     @SuppressWarnings("ConstantConditions")
     @Override
     public ShopItem deserialize(Type type, ConfigurationNode node) throws SerializationException {
-        final Pair<DisplayItem, Boolean> displayItem = itemCreator.createFromConfig(node.node("item"));
+        final Pair<DisplayItem, Boolean> item = itemCreator.createFromConfig(node.node("item"));
+        final Pair<DisplayItem, Boolean> displayItem = itemCreator.createFromConfig(node.node("displayItem"));
+
+        if (!item.second() && !displayItem.second()) {
+            return new ShopItemImpl(item.first());
+        }
+
+        final List<String> commands = node.node("commands", "list").getList(String.class, Collections.emptyList());
+        final boolean executeCommandsOnceForAllItems = node.node("commands", "executeOnceForAllItems").getBoolean();
+
         final int amount = node.node("amount").getInt(1);
         final int slot = node.node("slot").getInt();
         final int page = node.node("page").getInt(1);
-        // If the item is invalid, set buy and sell price to 0 (invalid = pair.second() == false)
-        final double buyPrice = displayItem.second() ? node.node("buyPrice").getDouble() / amount : 0.0d;
-        final double sellPrice = displayItem.second() ? node.node("sellPrice").getDouble() / amount : 0.0d;
-
+        final double buyPrice = node.node("buyPrice").getDouble();
+        final double sellPrice = node.node("buyPrice").getDouble();
         final boolean acceptOnlyExactItems = node.node("acceptOnlyExactItems").getBoolean(true);
 
-        return new ShopItemImpl(displayItem.first(), displayItem.first(), amount, slot, page, buyPrice, sellPrice, acceptOnlyExactItems);
+        return new ShopItemImpl(
+                displayItem.second() ? displayItem.first() : item.first(),
+                item.first(),
+                commands,
+                executeCommandsOnceForAllItems,
+                amount,
+                slot,
+                page,
+                (buyPrice > 0.0 ? buyPrice / amount : 0.0),
+                (sellPrice > 0.0 ? sellPrice / amount : 0.0),
+                acceptOnlyExactItems
+        );
     }
 
     @Override

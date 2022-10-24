@@ -4,26 +4,22 @@ import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.components.GuiAction;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
-import me.gabytm.minecraft.arcaneshop.ArcaneShop;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.config.configs.AmountSelectorMenuConfig;
-import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
+import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -32,16 +28,9 @@ import java.util.function.IntConsumer;
 
 public class AmountSelectorMenu {
 
-    //TODO move this
-    private final BukkitAudiences audiences = BukkitAudiences.create(JavaPlugin.getProvidingPlugin(ArcaneShop.class));
     private final MenuManager menuManager;
     private final ConfigManager configManager;
     private final ShopManager shopManager;
-    private final CustomItemManager customItemManager = new CustomItemManager();
-
-    private void sell(@NotNull final Player player, @NotNull final ShopItem item, final int amount) {
-        //player.getInventory().remove();
-    }
 
     public AmountSelectorMenu(
             @NotNull final MenuManager menuManager, @NotNull final ConfigManager configManager,
@@ -81,7 +70,7 @@ public class AmountSelectorMenu {
                         config.getLore()
                                 .stream()
                                 .map(it -> MiniMessage.miniMessage().deserialize(it, amountPlaceholder, pricePlaceholder))
-                                .map(it -> Component.empty().decoration(TextDecoration.ITALIC, false).append(it))
+                                .map(ItemCreator::removeItalic)
                                 .forEach(lore::add);
                     })
                     .amount(Math.min(amt, itemStack.getMaxStackSize()))
@@ -246,7 +235,7 @@ public class AmountSelectorMenu {
                 5, 5,
                 ItemBuilder.skull()
                         .texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTM4NTJiZjYxNmYzMWVkNjdjMzdkZTRiMGJhYTJjNWY4ZDhmY2E4MmU3MmRiY2FmY2JhNjY5NTZhODFjNCJ9fX0=")
-                        .name(Component.text("Go back", NamedTextColor.RED).decoration(TextDecoration.ITALIC, false))
+                        .name(ItemCreator.removeItalic(Component.text("Go back", NamedTextColor.RED)))
                         .asGuiItem(event -> menuManager.openShop(player, shop, page))
         );
         gui.open(player);

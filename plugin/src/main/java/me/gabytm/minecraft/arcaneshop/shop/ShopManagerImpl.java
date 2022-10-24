@@ -8,6 +8,7 @@ import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -54,6 +55,24 @@ public class ShopManagerImpl implements ShopManager {
 
         if (!economyProvider.subtract(player, price)) {
             player.sendMessage("Something went wrong while subtracting " + String.format("%.2f", price) + " from your account");
+            return false;
+        }
+
+        if (item.isCommand()) {
+            // TODO: 24/10/2022 replace papi placeholders 
+            if (item.executeCommandsOnceForAllItems()) {
+                item.getCommands().forEach(it -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it.replace("<amount>", String.valueOf(amount))));
+            } else {
+                for (int i = 0; i < amount; i++) {
+                    item.getCommands().forEach(it -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it));
+                }
+            }
+
+            player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount, item.getDisplayItem().getItemStack().getType(), price));
+            return true;
+        }
+
+        if (item.getItem() == null) {
             return false;
         }
 

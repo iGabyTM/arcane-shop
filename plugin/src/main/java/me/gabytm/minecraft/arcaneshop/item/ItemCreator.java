@@ -42,6 +42,10 @@ public class ItemCreator {
     private final HeadTextureManager headTextureManager = new HeadTextureManager();
     private final CustomItemManager customItemManager;
 
+    public static @NotNull Component removeItalic(@NotNull final Component component) {
+        return Component.empty().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).append(component);
+    }
+
     public ItemCreator(@NotNull final CustomItemManager customItemManager) {
         this.customItemManager = customItemManager;
     }
@@ -50,10 +54,6 @@ public class ItemCreator {
         return Arrays.stream(node.path().array())
                 .map(Object::toString)
                 .collect(Collectors.joining("."));
-    }
-
-    private @NotNull Component removeItalic(@NotNull final Component component) {
-        return Component.empty().decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE).append(component);
     }
 
     @SuppressWarnings({"UnstableApiUsage", "deprecation"})
@@ -112,7 +112,7 @@ public class ItemCreator {
         }
 
         final List<Component> loreComponent = node.node("lore").getList(Component.class, Collections.emptyList()).stream()
-                .map(this::removeItalic)
+                .map(ItemCreator::removeItalic)
                 .collect(Collectors.toList());
 
         if (!loreComponent.isEmpty()) {
