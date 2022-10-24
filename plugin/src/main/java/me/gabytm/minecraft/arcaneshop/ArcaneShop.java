@@ -4,13 +4,14 @@ import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPI;
 import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPIImpl;
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyManager;
+import me.gabytm.minecraft.arcaneshop.api.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.commands.ReloadCommand;
 import me.gabytm.minecraft.arcaneshop.commands.ShopCommand;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.economy.EconomyManagerImpl;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
-import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
+import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManagerImpl;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import me.gabytm.minecraft.arcaneshop.shop.ShopManagerImpl;
 import org.bukkit.Bukkit;
@@ -23,7 +24,6 @@ import java.io.File;
 public class ArcaneShop extends JavaPlugin {
 
     private ArcaneShopAPI api;
-    private CustomItemManager customItemManager;
     private ItemCreator itemCreator;
     private ConfigManager configManager;
     private MenuManager menuManager;
@@ -37,7 +37,7 @@ public class ArcaneShop extends JavaPlugin {
     public void onEnable() {
         getDataFolder().mkdirs();
 
-        this.customItemManager = new CustomItemManager();
+        final CustomItemManager customItemManager = new CustomItemManagerImpl();
         this.itemCreator = new ItemCreator(customItemManager);
 
         final EconomyManager economyManager = new EconomyManagerImpl();
@@ -47,8 +47,8 @@ public class ArcaneShop extends JavaPlugin {
                 customItemManager
         );
 
-        api = new ArcaneShopAPIImpl(economyManager, shopManager);
-        this.menuManager = new MenuManager(api.getShopManager(), configManager, customItemManager);
+        this.api = new ArcaneShopAPIImpl(customItemManager, economyManager, shopManager);
+        this.menuManager = new MenuManager(api.getShopManager(), configManager);
 
         registerCommands();
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);

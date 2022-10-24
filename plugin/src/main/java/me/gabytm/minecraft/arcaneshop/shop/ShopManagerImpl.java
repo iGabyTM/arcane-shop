@@ -2,11 +2,11 @@ package me.gabytm.minecraft.arcaneshop.shop;
 
 import com.google.common.collect.ImmutableMap;
 import me.gabytm.minecraft.arcaneshop.api.economy.EconomyProvider;
+import me.gabytm.minecraft.arcaneshop.api.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
-import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
