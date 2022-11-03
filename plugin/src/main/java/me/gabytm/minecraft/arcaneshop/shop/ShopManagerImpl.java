@@ -6,6 +6,7 @@ import me.gabytm.minecraft.arcaneshop.api.item.custom.CustomItemManager;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
+import me.gabytm.minecraft.arcaneshop.api.shop.ShopResult;
 import me.gabytm.minecraft.arcaneshop.config.ConfigManager;
 import me.gabytm.minecraft.arcaneshop.util.Logging;
 import org.bukkit.Bukkit;
@@ -44,18 +45,18 @@ public class ShopManagerImpl implements ShopManager {
     }
 
     @Override
-    public boolean buyItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
+    public @NotNull ShopResult buyItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
         final double price = amount * item.getBuyPrice();
         final EconomyProvider economyProvider = shop.getEconomyProvider();
 
         if (!economyProvider.has(player, price)) {
             player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount, item.getDisplayItem().getItemStack().getItemMeta().getDisplayName(), price));
-            return false;
+            return ShopResultImpl.buy(ShopResult.Result.NOT_ENOUGH_MONEY, shop, item, amount, price);
         }
 
         if (!economyProvider.subtract(player, price)) {
             player.sendMessage("Something went wrong while subtracting " + String.format("%.2f", price) + " from your account");
-            return false;
+            return ShopResultImpl.buy(ShopResult.Result.COULD_NOT_SUBTRACT_MONEY, shop, item, amount, price);
         }
 
         if (item.isCommand()) {
@@ -71,11 +72,11 @@ public class ShopManagerImpl implements ShopManager {
             }
 
             player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount, item.getDisplayItem().getItemStack().getType(), price));
-            return true;
+            return ShopResultImpl.buy(ShopResult.Result.SUCCESS, shop, item, amount, price);
         }
 
         if (item.getItem() == null) {
-            return false;
+            return ShopResultImpl.buy(ShopResult.Result.ITEM_IS_NULL, shop, item, 0, 0);
         }
 
         if (item.getItem().isCustom()) {
@@ -87,17 +88,17 @@ public class ShopManagerImpl implements ShopManager {
         }
 
         player.sendMessage(ChatColor.GREEN + String.format("You have bought %dx %s for %.2f", amount, item.getDisplayItem().getItemStack().getType(), price));
-        return true;
+        return ShopResultImpl.buy(ShopResult.Result.SUCCESS, shop, item, amount, price);
     }
 
     @Override
-    public boolean sellItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
+    public @NotNull ShopResult sellItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
         if (item.isCommand()) {
-            return false;
+            return ShopResultImpl.buy(ShopResult.Result.ITEM_IS_COMMAND, shop, item, 0, 0);
         }
 
         if (item.getItem() == null) {
-            return false;
+            return ShopResultImpl.buy(ShopResult.Result.ITEM_IS_NULL, shop, item, 0, 0);
         }
 
         if (item.getItem().isCustom()) {
@@ -105,24 +106,24 @@ public class ShopManagerImpl implements ShopManager {
 
             if (itemsTaken == 0) {
                 player.sendMessage(ChatColor.RED + "You don't have any " + item.getDisplayItem().getItemStack().getItemMeta().getDisplayName() + " in your inventory!");
-                return false;
+                return ShopResultImpl.sell(ShopResult.Result.NO_ITEMS_IN_INVENTORY, shop, item, 0, 0);
             }
 
             if (itemsTaken == amount) {
                 final double moneyToGive = itemsTaken * amount;
                 shop.getEconomyProvider().add(player, moneyToGive);
                 player.sendMessage(ChatColor.GREEN + String.format("You sold %dx %s for %.2f", itemsTaken, item.getDisplayItem().getItemStack().getItemMeta().getDisplayName(), moneyToGive));
-                return true;
+                return ShopResultImpl.sell(ShopResult.Result.SUCCESS, shop, item, amount, moneyToGive);
             }
 
             final double moneyToGive = itemsTaken * item.getSellPrice();
             shop.getEconomyProvider().add(player, moneyToGive);
             player.sendMessage(ChatColor.YELLOW + String.format("You sold only %dx %s for %.2f", itemsTaken, item.getDisplayItem().getItemStack().getItemMeta().getDisplayName(), moneyToGive));
-            return true;
+            return ShopResultImpl.sell(ShopResult.Result.SUCCESS, shop, item, itemsTaken, moneyToGive);
         }
 
         // TODO: 03/11/2022 add sell logic for normal items 
-        return true;
+        return ShopResultImpl.sell(ShopResult.Result.SUCCESS, shop, item, 0, 0);
     }
 
     public void loadShops(@NotNull final ConfigManager configManager) {

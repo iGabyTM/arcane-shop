@@ -12,8 +12,8 @@ public interface ShopManager {
 
     @NotNull Map<String, Shop> getShops();
 
-    boolean buyItem(@NotNull final Shop shop, @NotNull final ShopItem item, final int amount, @NotNull final Player player);
+    @NotNull ShopResult buyItem(@NotNull final Shop shop, @NotNull final ShopItem item, final int amount, @NotNull final Player player);
 
-    boolean sellItem(@NotNull final Shop shop, @NotNull final ShopItem item, final int amount, @NotNull final Player player);
+    @NotNull ShopResult sellItem(@NotNull final Shop shop, @NotNull final ShopItem item, final int amount, @NotNull final Player player);
 
 }

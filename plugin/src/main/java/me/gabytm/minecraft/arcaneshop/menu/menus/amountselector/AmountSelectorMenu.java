@@ -165,11 +165,11 @@ public class AmountSelectorMenu {
 
         final GuiAction<InventoryClickEvent> clickAction = (event) -> {
             if (buy) {
-                if (shopManager.buyItem(shop, item, amount.get(), player)) {
+                if (shopManager.buyItem(shop, item, amount.get(), player).success()) {
                     menuManager.openShop(player, shop, page);
                 }
             } else {
-                if (shopManager.sellItem(shop, item, amount.get(), player)) {
+                if (shopManager.sellItem(shop, item, amount.get(), player).success()) {
                     menuManager.openShop(player, shop, page);
                 }
             }
