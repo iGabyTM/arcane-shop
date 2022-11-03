@@ -7,10 +7,10 @@ import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ShopMenu {
@@ -52,17 +53,36 @@ public class ShopMenu {
                     .amount(item.getAmount())
                     .lore(lore -> {
                         if (item.canBeSold()) {
-                            lore.add(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN).decoration(TextDecoration.ITALIC, false));
+                            lore.add(ItemCreator.removeItalic(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN)));
                         }
 
                         if (item.canBeBought()) {
-                            lore.add(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED).decoration(TextDecoration.ITALIC, false));
+                            lore.add(ItemCreator.removeItalic(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED)));
                         }
                     })
                     .asGuiItem(event -> {
-                        if (item.canBeSold() && shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
-                            if (Arrays.stream(player.getInventory().getContents()).noneMatch(it -> it != null && it.getType() == item.getItem().getItemStack().getType())) {
-                                player.sendMessage(ChatColor.RED + "You don't have any " + item.getDisplayItem().getItemStack().getItemMeta().hasDisplayName() + " in your inventory");
+                        final String displayName = item.getDisplayItem().getItemStack().getItemMeta().getDisplayName();
+
+                        if (shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
+                            // The item can not be sold
+                            if (!item.canBeSold()) {
+                                player.sendMessage(ChatColor.RED + "Item " + displayName + " can not be sold");
+                                return;
+                            }
+
+                            // The item is custom, open the menu and let the custom item handler to check if they have enough items
+                            if (item.getItem() != null && item.getItem().isCustom()) {
+                                menuManager.openAmountSelectorForSell(item, player, shop, page);
+                                return;
+                            }
+
+                            // Check if the player has any item of the same type in their inventory
+                            final boolean hasItems = Arrays.stream(player.getInventory().getContents())
+                                    .filter(Objects::nonNull)
+                                    .anyMatch(it -> item.getItem() != null && it.getType() == item.getItem().getItemStack().getType());
+
+                            if (!hasItems) {
+                                player.sendMessage(ChatColor.RED + "You don't have any " + displayName + " in your inventory");
                                 return;
                             }
 
@@ -70,16 +90,24 @@ public class ShopMenu {
                             return;
                         }
 
-                        if (item.canBeBought() && shop.getShopActions().get(ShopAction.BUY) == event.getClick()) {
+                        if (shop.getShopActions().get(ShopAction.BUY) == event.getClick()) {
+                            // The item can not be bought
+                            if (!item.canBeBought()) {
+                                player.sendMessage(ChatColor.RED + "Item " + displayName + " can not be bought.");
+                                return;
+                            }
+
+                            // Player's inventory is full
                             if (player.getInventory().firstEmpty() == -1) {
                                 player.sendMessage(ChatColor.RED + "Your inventory is full!");
                                 return;
                             }
 
+                            // The player can afford to buy at least one item
                             if (shop.getEconomyProvider().has(player, item.getBuyPrice())) {
                                 menuManager.openAmountSelectorForBuy(item, player, shop, page);
                             } else {
-                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + item.getDisplayItem().getItemStack().getItemMeta().hasDisplayName());
+                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + displayName);
                             }
                         }
                     });
