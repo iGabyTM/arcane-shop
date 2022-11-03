@@ -40,7 +40,7 @@ public class ShopItemSerializer implements TypeSerializer<ShopItem> {
         final int slot = node.node("slot").getInt();
         final int page = node.node("page").getInt(1);
         final double buyPrice = node.node("buyPrice").getDouble();
-        final double sellPrice = node.node("buyPrice").getDouble();
+        final double sellPrice = node.node("sellPrice").getDouble();
         final boolean acceptOnlyExactItems = node.node("acceptOnlyExactItems").getBoolean(true);
 
         return new ShopItemImpl(
@@ -52,7 +52,8 @@ public class ShopItemSerializer implements TypeSerializer<ShopItem> {
                 slot,
                 page,
                 (buyPrice > 0.0 ? buyPrice / amount : 0.0),
-                (sellPrice > 0.0 ? sellPrice / amount : 0.0),
+                // Commands can not be sold
+                (sellPrice > 0.0 && commands.isEmpty() ? sellPrice / amount : 0.0),
                 acceptOnlyExactItems
         );
     }
