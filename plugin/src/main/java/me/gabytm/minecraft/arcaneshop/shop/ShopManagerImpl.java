@@ -61,10 +61,12 @@ public class ShopManagerImpl implements ShopManager {
         if (item.isCommand()) {
             // TODO: 24/10/2022 replace papi placeholders 
             if (item.executeCommandsOnceForAllItems()) {
-                item.getCommands().forEach(it -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it.replace("<amount>", String.valueOf(amount))));
+                item.getCommands()
+                        .forEach(it ->Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it.replace("<amount>", String.valueOf(amount))));
             } else {
                 for (int i = 0; i < amount; i++) {
-                    item.getCommands().forEach(it -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it));
+                    item.getCommands()
+                            .forEach(it ->Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it));
                 }
             }
 
@@ -90,7 +92,36 @@ public class ShopManagerImpl implements ShopManager {
 
     @Override
     public boolean sellItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
-        // TODO: 24/10/2022 implement sell 
+        if (item.isCommand()) {
+            return false;
+        }
+
+        if (item.getItem() == null) {
+            return false;
+        }
+
+        if (item.getItem().isCustom()) {
+            final int itemsTaken = customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).takeItems(player, item.getItem().getCustomItemProperties(), amount);
+
+            if (itemsTaken == 0) {
+                player.sendMessage(ChatColor.RED + "You don't have any " + item.getDisplayItem().getItemStack().getItemMeta().getDisplayName() + " in your inventory!");
+                return false;
+            }
+
+            if (itemsTaken == amount) {
+                final double moneyToGive = itemsTaken * amount;
+                shop.getEconomyProvider().add(player, moneyToGive);
+                player.sendMessage(ChatColor.GREEN + String.format("You sold %dx %s for %.2f", itemsTaken, item.getDisplayItem().getItemStack().getItemMeta().getDisplayName(), moneyToGive));
+                return true;
+            }
+
+            final double moneyToGive = itemsTaken * item.getSellPrice();
+            shop.getEconomyProvider().add(player, moneyToGive);
+            player.sendMessage(ChatColor.YELLOW + String.format("You sold only %dx %s for %.2f", itemsTaken, item.getDisplayItem().getItemStack().getItemMeta().getDisplayName(), moneyToGive));
+            return true;
+        }
+
+        // TODO: 03/11/2022 add sell logic for normal items 
         return true;
     }
 

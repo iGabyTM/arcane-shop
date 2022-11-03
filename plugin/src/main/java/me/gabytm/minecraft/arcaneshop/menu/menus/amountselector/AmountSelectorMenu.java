@@ -164,8 +164,6 @@ public class AmountSelectorMenu {
         final AtomicInteger amount = new AtomicInteger(item.getAmount());
 
         final GuiAction<InventoryClickEvent> clickAction = (event) -> {
-            final double cost = amount.get() * (buy ? item.getBuyPrice() : item.getSellPrice());
-
             if (buy) {
                 if (shopManager.buyItem(shop, item, amount.get(), player)) {
                     menuManager.openShop(player, shop, page);
@@ -175,55 +173,6 @@ public class AmountSelectorMenu {
                     menuManager.openShop(player, shop, page);
                 }
             }
-
-            /*if (buy) {
-                if (shop.getEconomyProvider().has(player, cost)) {
-                    if (!shop.getEconomyProvider().subtract(player, cost)) {
-                        player.sendMessage("Something went wrong while subtracting " + String.format("%.2f", cost) + " from your account");
-                        menuManager.openShop(player, shop, page);
-                    }
-
-                    final String sNbt = new NBTItem(item.displayItem().item()).toString();
-                    //noinspection PatternValidation
-                    final Key key = Key.key(Key.MINECRAFT_NAMESPACE, item.displayItem().item().getType().getKey().getKey());
-                    final BinaryTagHolder binaryTagHolder = BinaryTagHolder.binaryTagHolder(sNbt);
-                    final HoverEvent<HoverEvent.ShowItem> hover = HoverEvent.showItem(key, amount.get(), binaryTagHolder);
-
-                    final Component message = Component.text("You have bought " + amount.get() + "x ", NamedTextColor.GREEN)
-                            .append(MiniMessage.miniMessage().deserialize(item.displayItem().name() + " (hover)").hoverEvent(hover))
-                            .append(Component.text(" for " + String.format("%.2f", cost)));
-                    audiences.player(player).sendMessage(message);
-
-                    if (item.getItem().isCustom()) {
-                        customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).giveItems(player, item.getItem().getCustomItemProperties(), amount.get());
-                    } else {
-                        final ItemStack itemStack = item.getItem().item().clone();
-                        itemStack.setAmount(amount.get());
-                        player.getInventory().addItem(itemStack);
-                    }
-
-                    menuManager.openShop(player, shop, page);
-                    return;
-                }
-
-                player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount.get(), item.displayItem().item().getItemMeta().getDisplayName(), cost));
-                return;
-            }*/
-
-            /*final int itemsTaken = customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).takeItems(player, item.getItem().getCustomItemProperties(), amount.get());
-
-            if (itemsTaken == 0) {
-                player.sendMessage(ChatColor.RED + "You don't have any " + item.displayItem().item().getItemMeta().getDisplayName() + " in your inventory!");
-            } else if (itemsTaken == amount.get()) {
-                shop.getEconomyProvider().add(player, cost);
-                player.sendMessage(ChatColor.GREEN + String.format("You sold %dx %s for %.2f", itemsTaken, item.displayItem().item().getItemMeta().getDisplayName(), cost));
-            } else {
-                final double moneyToGive = itemsTaken * item.getSellPrice();
-                shop.getEconomyProvider().add(player, moneyToGive);
-                player.sendMessage(ChatColor.YELLOW + String.format("You sold only %dx %s for %.2f", itemsTaken, item.displayItem().item().getItemMeta().getDisplayName(), moneyToGive));
-            }
-
-            menuManager.openShop(player, shop, page);*/
         };
         final IntConsumer updateAmount = createUpdateAmountAction(gui, config.item(), item, clickAction, buy);
         updateAmount.accept(item.getAmount()); // Set the current amount
