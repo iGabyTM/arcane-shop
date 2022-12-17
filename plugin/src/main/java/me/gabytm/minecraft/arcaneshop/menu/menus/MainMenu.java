@@ -29,15 +29,13 @@ public class MainMenu {
                 .disableAllInteractions()
                 .create();
 
-        for (final Map.Entry<String, Shop> entry : shopManager.getShops().entrySet()) {
-            final Shop shop = entry.getValue();
-
+        for (final Shop shop : shopManager.getShops().values()) {
             gui.setItem(shop.getMainMenuSlot(), new GuiItem(shop.getMainMenuItem(), event -> {
-                if (player.hasPermission("arcaneshop.shop." + entry.getKey())) {
-                    player.sendMessage("Opening shop " + entry.getKey());
+                if (player.hasPermission("arcaneshop.shop." + shop.getName())) {
+                    player.sendMessage("Opening shop " + shop.getName());
                     menuManager.openShop(player, shop, 1);
                 } else {
-                    player.sendMessage("You can not access shop " + entry.getKey());
+                    player.sendMessage("You can not access shop " + shop.getName());
                     player.closeInventory();
                 }
             }));

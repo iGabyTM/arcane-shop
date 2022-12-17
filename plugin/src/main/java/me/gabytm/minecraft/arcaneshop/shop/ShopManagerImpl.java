@@ -139,8 +139,16 @@ public class ShopManagerImpl implements ShopManager {
 
             for (final File shopFile : files) {
                 final YamlConfigurationLoader loader = configManager.createLoader(shopFile.toPath());
+                final String shopName = shopFile.getName().replace(".yml", "");
                 final Shop shop =  loader.load().get(Shop.class);
-                shops.put(shopFile.getName().replace(".yml", ""), shop);
+
+                if (shop == null) {
+                    System.out.println("Could not load shop from " + shopFile.getAbsolutePath());
+                    continue;
+                }
+
+                shop.setName(shopName);
+                shops.put(shopName, shop);
             }
 
             Logging.warning("Loaded {0} shops: {1}", shops.size(), String.join(", ", shops.keySet()));

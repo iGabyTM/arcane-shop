@@ -6,8 +6,6 @@ import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.util.adventure.WrappedComponent;
-import me.gabytm.minecraft.arcaneshop.util.adventure.WrappedComponentImpl;
-import net.kyori.adventure.text.Component;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ShopImpl implements Shop {
+
+    private String name;
 
     private final ItemStack mainMenuItem;
     private final int mainMenuSlot;
@@ -45,6 +45,20 @@ public class ShopImpl implements Shop {
         this.displayItems = displayItems;
         this.economyProvider = economyProvider;
         this.shopActions = shopActions;
+    }
+
+    @Override
+    public @NotNull String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(@NotNull final String name) {
+        if (this.name != null) {
+            throw new RuntimeException("The shop already has a name set!");
+        }
+
+        this.name = name;
     }
 
     @Override
