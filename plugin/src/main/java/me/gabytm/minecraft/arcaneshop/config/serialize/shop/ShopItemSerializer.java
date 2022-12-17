@@ -30,7 +30,7 @@ public class ShopItemSerializer implements TypeSerializer<ShopItem> {
         final Pair<DisplayItem, Boolean> displayItem = itemCreator.createFromConfig(node.node("displayItem"));
 
         if (!item.second() && !displayItem.second()) {
-            return new ShopItemImpl(item.first());
+            return new ShopItemImpl(node.key().toString(), item.first());
         }
 
         final List<String> commands = node.node("commands", "list").getList(String.class, Collections.emptyList());
@@ -44,6 +44,7 @@ public class ShopItemSerializer implements TypeSerializer<ShopItem> {
         final boolean acceptOnlyExactItems = node.node("acceptOnlyExactItems").getBoolean(true);
 
         return new ShopItemImpl(
+                node.key().toString(),
                 displayItem.second() ? displayItem.first() : item.first(),
                 item.first(),
                 commands,

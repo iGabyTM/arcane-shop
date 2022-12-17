@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ShopItem {
 
+    @NotNull String getId();
+
     /**
      * The item that is displayed in the GUI
      */
