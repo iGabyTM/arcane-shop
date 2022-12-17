@@ -6,21 +6,23 @@ import me.gabytm.minecraft.arcaneshop.api.item.DisplayItem;
 import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.api.shop.price.PriceModifier;
 import me.gabytm.minecraft.arcaneshop.api.util.adventure.WrappedComponent;
 import me.gabytm.minecraft.arcaneshop.config.configs.AmountSelectorMenuConfig;
 import me.gabytm.minecraft.arcaneshop.config.configs.ItemsConfig;
 import me.gabytm.minecraft.arcaneshop.config.configs.MainConfig;
-import me.gabytm.minecraft.arcaneshop.config.serialize.adventure.ComponentSerializer;
+import me.gabytm.minecraft.arcaneshop.config.configs.PriceModifiersConfig;
 import me.gabytm.minecraft.arcaneshop.config.serialize.EconomyProviderSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.adventure.ComponentSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.adventure.WrappedComponentSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.AmountSelectorButtonSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.DisplayItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.item.ShopDecorationItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopItemSerializer;
 import me.gabytm.minecraft.arcaneshop.config.serialize.shop.ShopSerializer;
+import me.gabytm.minecraft.arcaneshop.config.serialize.shop.price.PriceModifierSerializer;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.menu.menus.amountselector.AmountSelectorButton;
-import me.gabytm.minecraft.arcaneshop.util.adventure.WrappedComponentImpl;
 import net.kyori.adventure.text.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +38,7 @@ import java.nio.file.Paths;
 public class ConfigManager {
 
     private MainConfig mainConfig;
+    private PriceModifiersConfig priceModifiersConfig;
     private AmountSelectorMenuConfig buyAmountSelectorMenuConfig;
     private AmountSelectorMenuConfig sellAmountSelectorMenuConfig;
     private ItemsConfig itemsConfig;
@@ -95,6 +98,8 @@ public class ConfigManager {
                                                 //.register(ShopSettings.class, new ShopSettingsSerializer(economyManager, mainConfig))
                                                 .register(ShopItem.class, new ShopItemSerializer(itemCreator))
                                                 .register(Shop.class, new ShopSerializer(itemCreator, mainConfig, economyManager))
+                                                .register(PriceModifier.class, PriceModifierSerializer.INSTANCE)
+                                                // Other
                                                 .register(AmountSelectorButton.class, new AmountSelectorButtonSerializer())
                                 )
                 )
@@ -109,6 +114,14 @@ public class ConfigManager {
 
     public void loadMainConfig() {
         mainConfig = load(MainConfig.class, Paths.get("config.yml"));
+    }
+
+    public PriceModifiersConfig getPriceModifiersConfig() {
+        return priceModifiersConfig;
+    }
+
+    public void loadPriceModifiersConfig() {
+        priceModifiersConfig = load(PriceModifiersConfig.class, Paths.get("price-modifiers.yml"));
     }
 
     public AmountSelectorMenuConfig getBuyAmountSelectorMenuConfig() {

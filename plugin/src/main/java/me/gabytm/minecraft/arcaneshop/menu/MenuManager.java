@@ -1,5 +1,6 @@
 package me.gabytm.minecraft.arcaneshop.menu;
 
+import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPI;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopManager;
@@ -14,11 +15,12 @@ public class MenuManager {
 
     private final AmountSelectorMenu amountSelectorMenu;
     private final MainMenu mainMenu;
-    private final ShopMenu shopMenu = new ShopMenu(this);
+    private final ShopMenu shopMenu;
 
-    public MenuManager(@NotNull final ShopManager shopManager, @NotNull final ConfigManager configManager) {
-        this.amountSelectorMenu = new AmountSelectorMenu(this, configManager, shopManager);
-        this.mainMenu = new MainMenu(this, shopManager);
+    public MenuManager(@NotNull final ArcaneShopAPI api, @NotNull final ConfigManager configManager) {
+        this.amountSelectorMenu = new AmountSelectorMenu(this, configManager, api.getShopManager());
+        this.mainMenu = new MainMenu(this, api.getShopManager());
+        this.shopMenu = new ShopMenu(this, api);
     }
 
     public void openAmountSelectorForBuy(@NotNull final ShopItem item, @NotNull final Player player, @NotNull final Shop shop, final int page) {

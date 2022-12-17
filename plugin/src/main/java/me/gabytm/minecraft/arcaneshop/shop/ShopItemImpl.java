@@ -10,6 +10,7 @@ import java.util.List;
 
 public class ShopItemImpl implements ShopItem {
 
+    private final String id;
     private final DisplayItem displayItem;
     private final DisplayItem item;
     private final List<@NotNull String> commands;
@@ -23,11 +24,12 @@ public class ShopItemImpl implements ShopItem {
     private final boolean acceptOnlyExactItems;
 
     public ShopItemImpl(
-            @NotNull final DisplayItem displayItem, @Nullable final DisplayItem item, @NotNull final List<@NotNull String> commands,
-            final boolean executeCommandsOnceForAllItems, final int amount, final int slot,
-            final int page, final double buyPrice, final double sellPrice,
-            final boolean acceptOnlyExactItems
+            @NotNull final String id, @NotNull final DisplayItem displayItem, @Nullable final DisplayItem item,
+            @NotNull final List<@NotNull String> commands, final boolean executeCommandsOnceForAllItems,
+            final int amount, final int slot, final int page,
+            final double buyPrice, final double sellPrice, final boolean acceptOnlyExactItems
     ) {
+        this.id = id;
         this.displayItem = displayItem;
         this.item = item;
         this.commands = commands;
@@ -40,8 +42,13 @@ public class ShopItemImpl implements ShopItem {
         this.acceptOnlyExactItems = acceptOnlyExactItems;
     }
 
-    public ShopItemImpl(@NotNull final DisplayItem displayItem) {
-        this(displayItem, displayItem, Collections.emptyList(), false, 1, 1, 1, 0.0d, 0.0d, true);
+    public ShopItemImpl(@NotNull final String id, @NotNull final DisplayItem displayItem) {
+        this(id, displayItem, displayItem, Collections.emptyList(), false, 1, 1, 1, 0.0d, 0.0d, true);
+    }
+
+    @Override
+    public @NotNull String getId() {
+        return id;
     }
 
     @Override

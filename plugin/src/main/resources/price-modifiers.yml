@@ -1,0 +1,11 @@
+modifiers:
+  test_sell:
+    action: SELL
+    shops: [test]
+    items: [test_item]
+    value: 5
+  test_buy:
+    action: BOTH
+    shops: [test]
+    items: [test_item2]
+    value: 10

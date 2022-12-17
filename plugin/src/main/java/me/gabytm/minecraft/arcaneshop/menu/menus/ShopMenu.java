@@ -3,30 +3,33 @@ package me.gabytm.minecraft.arcaneshop.menu.menus;
 import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
+import me.gabytm.minecraft.arcaneshop.api.ArcaneShopAPI;
 import me.gabytm.minecraft.arcaneshop.api.item.ShopDecorationItem;
 import me.gabytm.minecraft.arcaneshop.api.shop.Shop;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopAction;
 import me.gabytm.minecraft.arcaneshop.api.shop.ShopItem;
+import me.gabytm.minecraft.arcaneshop.api.shop.price.PriceModifier;
 import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ShopMenu {
 
     private final MenuManager menuManager;
+    private final ArcaneShopAPI api;
 
-    public ShopMenu(@NotNull final MenuManager menuManager) {
+    public ShopMenu(@NotNull final MenuManager menuManager, @NotNull final ArcaneShopAPI api) {
         this.menuManager = menuManager;
+        this.api = api;
     }
 
     public void open(@NotNull final Player player, @NotNull final Shop shop, final int page) {
@@ -48,16 +51,38 @@ public class ShopMenu {
                 .filter(it -> it.getPage() == ShopDecorationItem.ALL_PAGES || it.getPage() == page)
                 .forEach(item -> gui.setItem(item.getSlots(), new GuiItem(item.getDisplayItem().getItemStack())));
 
+        final List<PriceModifier> priceModifiers = api.getPriceModifierManager().getPlayerModifiers(player, shop);
+
         for (final ShopItem item : items) {
             final GuiItem guiItem = ItemBuilder.from(item.getDisplayItem().getItemStack().clone())
                     .amount(item.getAmount())
                     .lore(lore -> {
                         if (item.canBeSold()) {
-                            lore.add(ItemCreator.removeItalic(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN)));
+                            final Optional<PriceModifier> modifier = priceModifiers.stream()
+                                    .filter(it -> it.getItems().isEmpty() || it.getItems().contains(item.getId()))
+                                    .filter(it -> it.getAction() == PriceModifier.Action.BOTH || it.getAction() == PriceModifier.Action.SELL)
+                                    .filter(it -> player.hasPermission("arcaneshop.modifier." + it.getName()))
+                                    .max(Comparator.comparingDouble(PriceModifier::getValue));
+
+                            if (modifier.isPresent()) {
+                                lore.add(ItemCreator.removeItalic(MiniMessage.miniMessage().deserialize(String.format("<green>Sell for: <gray><st>$%.2f</st></gray> <green>$%.2f (+%.1f%%)", item.getSellPrice(), item.getSellPrice() + (modifier.get().getValue() / 100 * item.getSellPrice()), modifier.get().getValue()))));
+                            } else {
+                                lore.add(ItemCreator.removeItalic(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN)));
+                            }
                         }
 
                         if (item.canBeBought()) {
-                            lore.add(ItemCreator.removeItalic(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED)));
+                            final Optional<PriceModifier> modifier = priceModifiers.stream()
+                                    .filter(it -> it.getItems().isEmpty() || it.getItems().contains(item.getId()))
+                                    .filter(it -> it.getAction() == PriceModifier.Action.BOTH || it.getAction() == PriceModifier.Action.BUY)
+                                    .filter(it -> player.hasPermission("arcaneshop.modifier." + it.getName()))
+                                    .max(Comparator.comparingDouble(PriceModifier::getValue));
+
+                            if (modifier.isPresent()) {
+                                lore.add(ItemCreator.removeItalic(MiniMessage.miniMessage().deserialize(String.format("<red>Buy for: <gray><st>$%.2f</st></gray> <red>$%.2f (-%.1f%%)", item.getSellPrice(), item.getSellPrice() - (modifier.get().getValue() / 100 * item.getSellPrice()), modifier.get().getValue()))));
+                            } else {
+                                lore.add(ItemCreator.removeItalic(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED)));
+                            }
                         }
                     })
                     .asGuiItem(event -> {

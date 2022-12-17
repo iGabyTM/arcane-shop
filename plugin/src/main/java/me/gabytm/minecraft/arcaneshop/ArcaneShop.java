@@ -14,6 +14,7 @@ import me.gabytm.minecraft.arcaneshop.item.ItemCreator;
 import me.gabytm.minecraft.arcaneshop.item.custom.CustomItemManagerImpl;
 import me.gabytm.minecraft.arcaneshop.menu.MenuManager;
 import me.gabytm.minecraft.arcaneshop.shop.ShopManagerImpl;
+import me.gabytm.minecraft.arcaneshop.shop.price.PriceModifierManagerImpl;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.ServicePriority;
@@ -47,8 +48,8 @@ public class ArcaneShop extends JavaPlugin {
                 customItemManager
         );
 
-        this.api = new ArcaneShopAPIImpl(customItemManager, economyManager, shopManager);
-        this.menuManager = new MenuManager(api.getShopManager(), configManager);
+        this.api = new ArcaneShopAPIImpl(customItemManager, economyManager, shopManager, new PriceModifierManagerImpl());
+        this.menuManager = new MenuManager(api, configManager);
 
         registerCommands();
         getServer().getServicesManager().register(ArcaneShopAPI.class, api, this, ServicePriority.Highest);
@@ -59,11 +60,13 @@ public class ArcaneShop extends JavaPlugin {
 
     public void load() {
         configManager.loadMainConfig();
+        configManager.loadPriceModifiersConfig();
         configManager.loadItemsConfig();
         configManager.loadAmountSelectorMenuConfigs();
 
         api.getEconomyManager().setDefaultProvider(api.getEconomyManager().getProvider(configManager.getMainConfig().getDefaultEconomyProvider()));
         ((ShopManagerImpl) api.getShopManager()).loadShops(configManager);
+        ((PriceModifierManagerImpl) api.getPriceModifierManager()).loadModifiers(configManager.getPriceModifiersConfig());
     }
 
 }
