@@ -69,7 +69,7 @@ public class AmountSelectorMenu {
 
                         config.getLore()
                                 .stream()
-                                .map(it -> MiniMessage.miniMessage().deserialize(it, amountPlaceholder, pricePlaceholder))
+                                .map(line -> MiniMessage.miniMessage().deserialize(line, amountPlaceholder, pricePlaceholder))
                                 .map(ItemCreator::removeItalic)
                                 .forEach(lore::add);
                     })

@@ -20,7 +20,7 @@ public class PriceModifierManagerImpl implements PriceModifierManager {
     public @NotNull List<@NotNull PriceModifier> getPlayerModifiers(@NotNull Player player, @NotNull Shop shop) {
         return loadedModifiers.values()
                 .stream()
-                .filter(it -> it.getShops().isEmpty() || it.getShops().contains(shop.getName()))
+                .filter(modifier -> modifier.getShops().isEmpty() || modifier.getShops().contains(shop.getName()))
                 .collect(Collectors.toList());
     }
 

@@ -33,11 +33,12 @@ public class ShopMenu {
     }
 
     public void open(@NotNull final Player player, @NotNull final Shop shop, final int page) {
-        final List<ShopItem> items = shop.getItems().stream()
-                .filter(it -> it.getPage() == page)
+        final List<ShopItem> shopItems = shop.getItems()
+                .stream()
+                .filter(shopItem -> shopItem.getPage() == page)
                 .collect(Collectors.toList());
 
-        if (page != 1 && items.isEmpty()) {
+        if (page != 1 && shopItems.isEmpty()) {
             return;
         }
 
@@ -47,77 +48,78 @@ public class ShopMenu {
                 .disableAllInteractions()
                 .create();
 
-        shop.getDecorations().stream()
-                .filter(it -> it.getPage() == ShopDecorationItem.ALL_PAGES || it.getPage() == page)
-                .forEach(item -> gui.setItem(item.getSlots(), new GuiItem(item.getDisplayItem().getItemStack())));
+        shop.getDecorations()
+                .stream()
+                .filter(decorationItem -> decorationItem.getPage() == ShopDecorationItem.ALL_PAGES || decorationItem.getPage() == page)
+                .forEach(decorationItem -> gui.setItem(decorationItem.getSlots(), new GuiItem(decorationItem.getDisplayItem().getItemStack())));
 
         final List<PriceModifier> priceModifiers = api.getPriceModifierManager().getPlayerModifiers(player, shop);
 
-        for (final ShopItem item : items) {
-            final GuiItem guiItem = ItemBuilder.from(item.getDisplayItem().getItemStack().clone())
-                    .amount(item.getAmount())
+        for (final ShopItem shopItem : shopItems) {
+            final GuiItem guiItem = ItemBuilder.from(shopItem.getDisplayItem().getItemStack().clone())
+                    .amount(shopItem.getAmount())
                     .lore(lore -> {
-                        if (item.canBeSold()) {
-                            final Optional<PriceModifier> modifier = priceModifiers.stream()
-                                    .filter(it -> it.getItems().isEmpty() || it.getItems().contains(item.getId()))
-                                    .filter(it -> it.getAction() == PriceModifier.Action.BOTH || it.getAction() == PriceModifier.Action.SELL)
-                                    .filter(it -> player.hasPermission("arcaneshop.modifier." + it.getName()))
+                        if (shopItem.canBeSold()) {
+                            final Optional<PriceModifier> optionalPriceModifier = priceModifiers.stream()
+                                    .filter(modifier -> modifier.getItems().isEmpty() || modifier.getItems().contains(shopItem.getId()))
+                                    .filter(modifier -> modifier.getAction() == PriceModifier.Action.BOTH || modifier.getAction() == PriceModifier.Action.SELL)
+                                    .filter(modifier -> player.hasPermission("arcaneshop.modifier." + modifier.getName()))
                                     .max(Comparator.comparingDouble(PriceModifier::getValue));
 
-                            if (modifier.isPresent()) {
-                                lore.add(ItemCreator.removeItalic(MiniMessage.miniMessage().deserialize(String.format("<green>Sell for: <gray><st>$%.2f</st></gray> <green>$%.2f (+%.1f%%)", item.getSellPrice(), item.getSellPrice() + (modifier.get().getValue() / 100 * item.getSellPrice()), modifier.get().getValue()))));
+                            if (optionalPriceModifier.isPresent()) {
+                                lore.add(ItemCreator.removeItalic(MiniMessage.miniMessage().deserialize(String.format("<green>Sell for: <gray><st>$%.2f</st></gray> <green>$%.2f (+%.1f%%)", shopItem.getSellPrice(), shopItem.getSellPrice() + (optionalPriceModifier.get().getValue() / 100 * shopItem.getSellPrice()), optionalPriceModifier.get().getValue()))));
                             } else {
-                                lore.add(ItemCreator.removeItalic(Component.text("Sell for: $" + item.getSellPrice(), NamedTextColor.GREEN)));
+                                lore.add(ItemCreator.removeItalic(Component.text("Sell for: $" + shopItem.getSellPrice(), NamedTextColor.GREEN)));
                             }
                         }
 
-                        if (item.canBeBought()) {
-                            final Optional<PriceModifier> modifier = priceModifiers.stream()
-                                    .filter(it -> it.getItems().isEmpty() || it.getItems().contains(item.getId()))
-                                    .filter(it -> it.getAction() == PriceModifier.Action.BOTH || it.getAction() == PriceModifier.Action.BUY)
-                                    .filter(it -> player.hasPermission("arcaneshop.modifier." + it.getName()))
+                        if (shopItem.canBeBought()) {
+                            final Optional<PriceModifier> optionalPriceModifier = priceModifiers.stream()
+                                    .filter(modifier -> modifier.getItems().isEmpty() || modifier.getItems().contains(shopItem.getId()))
+                                    .filter(modifier -> modifier.getAction() == PriceModifier.Action.BOTH || modifier.getAction() == PriceModifier.Action.BUY)
+                                    .filter(modifier -> player.hasPermission("arcaneshop.modifier." + modifier.getName()))
                                     .max(Comparator.comparingDouble(PriceModifier::getValue));
 
-                            if (modifier.isPresent()) {
-                                lore.add(ItemCreator.removeItalic(MiniMessage.miniMessage().deserialize(String.format("<red>Buy for: <gray><st>$%.2f</st></gray> <red>$%.2f (-%.1f%%)", item.getSellPrice(), item.getSellPrice() - (modifier.get().getValue() / 100 * item.getSellPrice()), modifier.get().getValue()))));
+                            if (optionalPriceModifier.isPresent()) {
+                                lore.add(ItemCreator.removeItalic(MiniMessage.miniMessage().deserialize(String.format("<red>Buy for: <gray><st>$%.2f</st></gray> <red>$%.2f (-%.1f%%)", shopItem.getSellPrice(), shopItem.getSellPrice() - (optionalPriceModifier.get().getValue() / 100 * shopItem.getSellPrice()), optionalPriceModifier.get().getValue()))));
                             } else {
-                                lore.add(ItemCreator.removeItalic(Component.text("Buy for: $" + item.getBuyPrice(), NamedTextColor.RED)));
+                                lore.add(ItemCreator.removeItalic(Component.text("Buy for: $" + shopItem.getBuyPrice(), NamedTextColor.RED)));
                             }
                         }
                     })
                     .asGuiItem(event -> {
-                        final String displayName = item.getDisplayItem().getItemStack().getItemMeta().getDisplayName();
+                        final String displayName = shopItem.getDisplayItem().getItemStack().getItemMeta().getDisplayName();
 
                         if (shop.getShopActions().get(ShopAction.SELL) == event.getClick()) {
                             // The item can not be sold
-                            if (!item.canBeSold()) {
+                            if (!shopItem.canBeSold()) {
                                 player.sendMessage(ChatColor.RED + "Item " + displayName + " can not be sold");
                                 return;
                             }
 
                             // The item is custom, open the menu and let the custom item handler to check if they have enough items
-                            if (item.getItem() != null && item.getItem().isCustom()) {
-                                menuManager.openAmountSelectorForSell(item, player, shop, page);
+                            if (shopItem.getItem() != null && shopItem.getItem().isCustom()) {
+                                menuManager.openAmountSelectorForSell(shopItem, player, shop, page);
                                 return;
                             }
 
                             // Check if the player has any item of the same type in their inventory
                             final boolean hasItems = Arrays.stream(player.getInventory().getContents())
                                     .filter(Objects::nonNull)
-                                    .anyMatch(it -> item.getItem() != null && it.getType() == item.getItem().getItemStack().getType());
+                                    .anyMatch(item -> shopItem.getItem() != null && item.getType() == shopItem.getItem().getItemStack().getType());
 
                             if (!hasItems) {
                                 player.sendMessage(ChatColor.RED + "You don't have any " + displayName + " in your inventory");
                                 return;
                             }
 
-                            menuManager.openAmountSelectorForSell(item, player, shop, page);
+                            menuManager.openAmountSelectorForSell(shopItem, player, shop, page);
                             return;
                         }
 
                         if (shop.getShopActions().get(ShopAction.BUY) == event.getClick()) {
                             // The item can not be bought
-                            if (!item.canBeBought()) {
+                            if (!shopItem.canBeBought()) {
                                 player.sendMessage(ChatColor.RED + "Item " + displayName + " can not be bought.");
                                 return;
                             }
@@ -129,15 +131,15 @@ public class ShopMenu {
                             }
 
                             // The player can afford to buy at least one item
-                            if (shop.getEconomyProvider().has(player, item.getBuyPrice())) {
-                                menuManager.openAmountSelectorForBuy(item, player, shop, page);
+                            if (shop.getEconomyProvider().has(player, shopItem.getBuyPrice())) {
+                                menuManager.openAmountSelectorForBuy(shopItem, player, shop, page);
                             } else {
-                                player.sendMessage(ChatColor.RED + "You don't have " + item.getBuyPrice() + " to buy " + displayName);
+                                player.sendMessage(ChatColor.RED + "You don't have " + shopItem.getBuyPrice() + " to buy " + displayName);
                             }
                         }
                     });
 
-            gui.setItem(item.getSlot(), guiItem);
+            gui.setItem(shopItem.getSlot(), guiItem);
         }
 
         if (page != 1) {

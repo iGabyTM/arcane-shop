@@ -40,7 +40,7 @@ public interface Shop {
     default @Nullable ShopItem getItem(@NotNull final String id) {
         return getItems()
                 .stream()
-                .filter(it -> it.getId().equals(id))
+                .filter(shopItem -> shopItem.getId().equals(id))
                 .findFirst()
                 .orElse(null);
     }

@@ -92,14 +92,18 @@ public class ItemCreator {
     }
 
     private @NotNull DisplayItem setMeta(@NotNull final ConfigurationNode node, @NotNull final BaseItemBuilder<?> builder) throws SerializationException {
-        final ItemFlag[] flags = node.node("flags").getList(String.class, Collections.emptyList()).stream()
-                .map(it -> Enums.getOrNull(ItemFlag.class, it))
+        final ItemFlag[] flags = node.node("flags")
+                .getList(String.class, Collections.emptyList())
+                .stream()
+                .map(string -> Enums.getOrNull(ItemFlag.class, string))
                 .filter(Objects::nonNull)
                 .toArray(ItemFlag[]::new);
 
         final Map<@NotNull Enchantment, @NotNull Integer> enchantments =
-                node.node("enchantments").getList(String.class, Collections.emptyList()).stream()
-                        .map(it -> it.split(Separator.SEMICOLON)) // Enchantments are defined as Enchantment;Level
+                node.node("enchantments")
+                        .getList(String.class, Collections.emptyList())
+                        .stream()
+                        .map(string -> string.split(Separator.SEMICOLON)) // Enchantments are defined as Enchantment;Level
                         .map(this::parseEnchantmentAndLevel)
                         .filter(Objects::nonNull)
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -111,7 +115,9 @@ public class ItemCreator {
             builder.name(removeItalic(nameComponent));
         }
 
-        final List<Component> loreComponent = node.node("lore").getList(Component.class, Collections.emptyList()).stream()
+        final List<Component> loreComponent = node.node("lore")
+                .getList(Component.class, Collections.emptyList())
+                .stream()
                 .map(ItemCreator::removeItalic)
                 .collect(Collectors.toList());
 

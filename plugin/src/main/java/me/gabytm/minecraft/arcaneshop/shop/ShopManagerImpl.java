@@ -63,11 +63,11 @@ public class ShopManagerImpl implements ShopManager {
             // TODO: 24/10/2022 replace papi placeholders 
             if (item.executeCommandsOnceForAllItems()) {
                 item.getCommands()
-                        .forEach(it ->Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it.replace("<amount>", String.valueOf(amount))));
+                        .forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("<amount>", String.valueOf(amount))));
             } else {
                 for (int i = 0; i < amount; i++) {
                     item.getCommands()
-                            .forEach(it ->Bukkit.dispatchCommand(Bukkit.getConsoleSender(), it));
+                            .forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
                 }
             }
 
@@ -130,7 +130,7 @@ public class ShopManagerImpl implements ShopManager {
         try {
             shops.clear();
             shopsFolder.mkdirs();
-            final File[] files = shopsFolder.listFiles(it -> it.getName().endsWith(".yml"));
+            final File[] files = shopsFolder.listFiles(file -> file.getName().endsWith(".yml"));
 
             if (files == null) {
                 Logging.warning("No shops found on {0}", shopsFolder.getAbsolutePath());
