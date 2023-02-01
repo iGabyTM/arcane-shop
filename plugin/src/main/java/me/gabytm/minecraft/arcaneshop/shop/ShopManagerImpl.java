@@ -49,11 +49,13 @@ public class ShopManagerImpl implements ShopManager {
         final double price = amount * item.getBuyPrice();
         final EconomyProvider economyProvider = shop.getEconomyProvider();
 
+        // The player can not afford to buy the items
         if (!economyProvider.has(player, price)) {
             player.sendMessage(ChatColor.RED + String.format("You can not afford to buy %dx %s for %.2f", amount, item.getDisplayItem().getItemStack().getItemMeta().getDisplayName(), price));
             return ShopResultImpl.buy(ShopResult.Result.NOT_ENOUGH_MONEY, shop, item, amount, price);
         }
 
+        // Could not subtract the amount of money from player's balance
         if (!economyProvider.subtract(player, price)) {
             player.sendMessage("Something went wrong while subtracting " + String.format("%.2f", price) + " from your account");
             return ShopResultImpl.buy(ShopResult.Result.COULD_NOT_SUBTRACT_MONEY, shop, item, amount, price);
@@ -79,6 +81,7 @@ public class ShopManagerImpl implements ShopManager {
             return ShopResultImpl.buy(ShopResult.Result.ITEM_IS_NULL, shop, item, 0, 0);
         }
 
+        // Give the items to the player
         if (item.getItem().isCustom()) {
             customItemManager.getHandler(item.getItem().getCustomItemHandlerName()).giveItems(player, item.getItem().getCustomItemProperties(), amount);
         } else {
@@ -93,10 +96,12 @@ public class ShopManagerImpl implements ShopManager {
 
     @Override
     public @NotNull ShopResult sellItem(@NotNull Shop shop, @NotNull ShopItem item, int amount, @NotNull Player player) {
+        // Commands can not be sold (not yet at least)
         if (item.isCommand()) {
             return ShopResultImpl.buy(ShopResult.Result.ITEM_IS_COMMAND, shop, item, 0, 0);
         }
 
+        // The item is null
         if (item.getItem() == null) {
             return ShopResultImpl.buy(ShopResult.Result.ITEM_IS_NULL, shop, item, 0, 0);
         }
